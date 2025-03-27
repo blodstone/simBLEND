@@ -1,4 +1,4 @@
-from transformers import RobertaModel, RobertaConfig
+from transformers import AutoModel, AutoConfig
 from pytorch_metric_learning.losses import SupConLoss
 from pytorch_metric_learning.distances import DotProductSimilarity
 from mind_dm_enc import NewsBatch
@@ -7,10 +7,10 @@ import lightning as L
 
 class AModule(L.LightningModule):
     
-    def __init__(self):
+    def __init__(self, plm_name: str = "answerdotai/ModernBERT-large"):
         super().__init__()
-        config = RobertaConfig.from_pretrained("roberta-large")
-        self.text_encoder = RobertaModel.from_pretrained('roberta-large', config=config)
+        config = AutoConfig.from_pretrained(plm_name)
+        self.text_encoder = AutoModel.from_pretrained(plm_name, config=config)
         distance_func = DotProductSimilarity(normalize_embeddings=False)
         self.supcofn_loss = SupConLoss(temperature=0.1, distance=distance_func)
 
@@ -47,5 +47,6 @@ class AModule(L.LightningModule):
         return loss
     
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        return optimizer
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=0.01)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
+        return [optimizer], [scheduler]

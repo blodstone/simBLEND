@@ -8,8 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
-
+cache/
 Untitled*
 .pytest_cache/
 .ipynb_checkpoints/
 lightning_logs/
+checkpoints/
+tb_logs/

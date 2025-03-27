@@ -1,4 +1,3 @@
-from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 import re
@@ -7,10 +6,7 @@ import numpy as np
 from typing import Any, Dict, List, Optional, TypedDict
 import lightning as L
 import torch
-from torch import Value
-from tqdm import tqdm
 from torch.utils.data import DataLoader, Dataset
-from transformers import PreTrainedTokenizer, PreTrainedTokenizerFast
 from transformers import AutoTokenizer
 
 class NewsBatch(TypedDict):
@@ -73,7 +69,7 @@ class MINDEncDataset(Dataset):
 
 class MINDEncDataModule(L.LightningDataModule):
 
-    def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, batch_size: int = 32, max_title_len=30, max_abstract_len=100):
+    def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, batch_size: int = 32, max_title_len=30, max_abstract_len=100, plm_name: str = "answerdotai/ModernBERT-large"):
         super().__init__()
         self.train_path = train_path
         self.dev_path = dev_path
@@ -82,7 +78,7 @@ class MINDEncDataModule(L.LightningDataModule):
         self.dev_news_data = None
         self.test_news_data = None
         self.batch_size = batch_size
-        self.tokenizer_name = 'roberta-large'
+        self.tokenizer_name = plm_name
         self.max_title_len = max_title_len
         self.max_abstract_len = max_abstract_len
 
