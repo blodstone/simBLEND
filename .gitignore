@@ -12,3 +12,4 @@ wheels/
 Untitled*
 .pytest_cache/
 .ipynb_checkpoints/
+lightning_logs/

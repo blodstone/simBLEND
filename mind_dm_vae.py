@@ -2,13 +2,37 @@ from collections import Counter
 from pathlib import Path
 import re
 import pandas as pd
+import numpy as np
 from typing import List
 import lightning as L
 from tqdm import tqdm
+from torch.utils.data import DataLoader, Dataset
 
-class MIND_DataModule(L.LightningDataModule):
+class MINDVAEDataset(Dataset):
 
-    def __init__(self, train_path: str, dev_path: str):
+    def __init__(self, behaviors: pd.DataFrame, news: pd.DataFrame):
+        self.behaviors = behaviors
+        self.news = news
+
+    def __getitem__(self, index):
+        user_bhv = self.behaviors.iloc[index]
+
+        history = user_bhv["history"]
+        cand = user_bhv["cand"]
+        labels = user_bhv["labels"]
+
+        history = self.news[history]
+        cand = self.news.loc[cand]
+        labels = np.array(labels)
+
+        return history, cand, labels
+    
+    def __len__(self):
+        return len(self.behaviors)
+
+class MINDVAEDataModule(L.LightningDataModule):
+
+    def __init__(self, train_path: Path, dev_path: Path, batch_size: int = 32):
         super().__init__()
         self.train_path = train_path
         self.dev_path = dev_path
@@ -16,6 +40,7 @@ class MIND_DataModule(L.LightningDataModule):
         self.train_news_data = None
         self.dev_behavior_data = None
         self.dev_news_data = None
+        self.batch_size = batch_size
 
     def _word_tokenize(self, sentence: str) -> List[str]:
         """Splits a sentence into word list using regex.
@@ -33,7 +58,7 @@ class MIND_DataModule(L.LightningDataModule):
         else:
             return []
         
-    def _load_behaviors(self, path: Path, split: str) -> pd.DataFrame:
+    def _load_behaviors(self, path: Path, split: str):
         """Loads the parsed user behaviors. If not already parsed, loads and parses the raw
         behavior data.
 
@@ -62,7 +87,6 @@ class MIND_DataModule(L.LightningDataModule):
         )
         behaviors = behaviors.drop(columns=["impressions"])
 
-        cnt_bhv = len(behaviors)
         behaviors = behaviors[behaviors["history"].apply(len) > 0]
         # dropped_bhv = cnt_bhv - len(behaviors)
         behaviors = behaviors.reset_index(drop=True)
@@ -83,7 +107,7 @@ class MIND_DataModule(L.LightningDataModule):
             # test set
             # load uid2index map
             fpath = path.parent / "uid2index.tsv"
-            uid2index = dict(pd.read_table(fpath).values.tolist())
+            uid2index = {item: idx for idx, item in enumerate(pd.read_table(fpath).values.tolist())}
 
         # map uid to index
 
@@ -142,8 +166,20 @@ class MIND_DataModule(L.LightningDataModule):
             self.dev_news_data = news
 
 
-    def setup(self):
+    def setup(self, stage=None):
         self._load_news_data(self.train_path, "train")
         self._load_news_data(self.dev_path, "dev")
         self._load_behaviors(self.train_path, "train")
         self._load_behaviors(self.dev_path, "dev")
+
+    def train_dataloader(self):
+        if self.train_behavior_data is None or self.train_news_data is None:
+            raise ValueError("Train behavior data or train news data is not loaded.")
+        self.train_dataset = MINDVAEDataset(self.train_behavior_data, self.train_news_data)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+    
+    def val_dataloader(self):
+        if self.dev_behavior_data is None or self.dev_news_data is None:
+            raise ValueError("Dev behavior data or dev news data is not loaded.")
+        self.dev_dataset = MINDVAEDataset(self.dev_behavior_data, self.dev_news_data)
+        return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False)

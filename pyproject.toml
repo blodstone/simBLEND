@@ -17,5 +17,6 @@ dependencies = [
     "retrying>=1.3.4",
     "rich>=13.9.4",
     "rootutils>=1.0.7",
+    "transformers>=4.50.2",
     "wandb>=0.19.8",
 ]
