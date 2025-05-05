@@ -1,11 +1,11 @@
 from transformers import AutoModel, AutoConfig
 from pytorch_metric_learning.losses import SupConLoss
 from pytorch_metric_learning.distances import DotProductSimilarity
-from mind_dm_enc import NewsBatch
+from data_modules.mind_aspect_data import NewsBatch
 import torch
 import lightning as L
 
-class AModule(L.LightningModule):
+class AspectRepr(L.LightningModule):
     
     def __init__(self, plm_name: str = "answerdotai/ModernBERT-large"):
         super().__init__()

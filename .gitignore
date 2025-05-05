@@ -15,3 +15,6 @@ Untitled*
 lightning_logs/
 checkpoints/
 tb_logs/
+unknown/
+outputs/
+secrets.sh

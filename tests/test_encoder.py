@@ -3,8 +3,8 @@ import random
 import pytest
 import numpy as np
 import torch
-from mind_dm_enc import MINDEncDataModule
-from a_module import AModule
+from data_modules.mind_aspect_repr import MINDEncDataModule
+from modules.aspect_enc import AspectRepr
 import lightning as L
 import os
 from lightning.pytorch.callbacks import Callback
@@ -24,7 +24,7 @@ def mind_dataset():
 
 def test_invalid_embeddings_shape(mind_dataset):
     mind_dataset.setup('fit')
-    model=AModule()
+    model=AspectRepr()
     sample_batch = next(iter(mind_dataset.train_dataloader()))
     output = model(sample_batch)
     assert output is not None, "Model forward pass returned None"
@@ -34,7 +34,7 @@ def test_invalid_embeddings_shape(mind_dataset):
 @pytest.fixture
 def setup_training(mind_dataset):
     # Setup the model
-    model = AModule()
+    model = AspectRepr()
 
     return model, mind_dataset
 

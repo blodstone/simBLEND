@@ -51,7 +51,7 @@ class DatasetCollate:
         batch_out["news_ids"] = torch.from_numpy(nids).long()
         combined_text = df.apply(lambda row: f"{row['title']} {row['abstract']}", axis=1).tolist()
         text = self._tokenize_plm(combined_text)
-        batch_out["text"] = text
+        batch_out["text"] = text        
         return batch_out
 
 class MINDEncDataset(Dataset):
@@ -69,7 +69,8 @@ class MINDEncDataset(Dataset):
 
 class MINDEncDataModule(L.LightningDataModule):
 
-    def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, batch_size: int = 32, max_title_len=30, max_abstract_len=100, plm_name: str = "answerdotai/ModernBERT-large"):
+    def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, 
+                 batch_size: int = 32, max_title_len=30, max_abstract_len=100, plm_name: str = "answerdotai/ModernBERT-large"):
         super().__init__()
         self.train_path = train_path
         self.dev_path = dev_path
@@ -136,6 +137,13 @@ class MINDEncDataModule(L.LightningDataModule):
                 lambda category: categ2index.get(category, 0)
             )
             self.dev_news_data = news
+        elif split == 'test':
+            fpath = path.parent / "categ2index.tsv"
+            categ2index = pd.read_table(fpath, sep="\t").set_index("word")["index"].to_dict()
+            news["category_class"] = news["category"].apply(
+                lambda category: categ2index.get(category, 0)
+            )
+            self.test_news_data = news
         
     def setup(self, stage):
         if stage == 'fit' or stage is None:
@@ -149,15 +157,15 @@ class MINDEncDataModule(L.LightningDataModule):
             else:
                 raise ValueError("Test path is not provided.")
 
-    def train_dataloader(self):
+    def train_dataloader(self, shuffle=True, num_workers=30):
         if self.train_news_data is None:
             raise ValueError("Train news data is not loaded.")
         self.train_dataset = MINDEncDataset(self.train_news_data)
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=30,
+            shuffle=shuffle,
+            num_workers=num_workers,
             collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len),
         )
     
@@ -167,3 +175,12 @@ class MINDEncDataModule(L.LightningDataModule):
         self.dev_dataset = MINDEncDataset(self.dev_news_data)
         return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False,
             collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
+    
+    def test_dataloader(self):
+        if self.test_news_data is None:
+            raise ValueError("Test news data is not loaded.")
+        self.test_dataset = MINDEncDataset(self.test_news_data)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, 
+                          collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
+    
+                          

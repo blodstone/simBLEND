@@ -1,7 +1,7 @@
 from pathlib import Path
-from mind_dm_enc import MINDEncDataModule, MINDEncDataset
+from data_modules.mind_aspect_repr import MINDEncDataModule, MINDEncDataset
 from transformers import AutoTokenizer
-from mind_dm_enc import DatasetCollate
+from data_modules.mind_aspect_repr import DatasetCollate
 import pytest
 
 @pytest.fixture(scope='session')

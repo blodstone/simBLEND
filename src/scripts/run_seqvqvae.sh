@@ -1,0 +1,47 @@
+#!/bin/bash
+
+source ./secrets.sh
+# Required Paths (Update these with your actual paths)
+TRAIN_DATA_PATH=$BASE_DIR/outputs/mind/train_histories_indices.csv
+DEV_DATA_PATH=$BASE_DIR/outputs/mind/dev_mind_category_histories_indices.csv
+CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
+# Model/Llama Parameters (Defaults from script, modify as needed)
+CODEBOOK_SIZE=256
+HIDDEN_SIZE=512
+INTERMEDIATE_SIZE=2048
+NUM_HIDDEN_LAYERS=8
+NUM_ATTENTION_HEADS=8
+MAX_POSITION_EMBEDDINGS=4096
+
+# Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
+LEARNING_RATE=5e-4
+WARMUP_EPOCHS=1
+WEIGHT_DECAY=0.01
+
+# Training Parameters (Defaults from script, modify as needed)
+BATCH_SIZE=16
+MAX_EPOCHS=10
+DEVICES=1
+GPU_IDS=1 # Comma-separated list of GPU IDs
+TB_NAME="seqvqvae2"
+SEED=42
+
+
+uv run python ../train_seq_vqvae.py \
+    --train_path "$TRAIN_DATA_PATH" \
+    --dev_path "$DEV_DATA_PATH" \
+    --checkpoint_path "$CHECKPOINT_DIR" \
+    --learning_rate $LEARNING_RATE \
+    --intermediate_size $INTERMEDIATE_SIZE \
+    --num_hidden_layers $NUM_HIDDEN_LAYERS \
+    --num_attention_heads $NUM_ATTENTION_HEADS \
+    --max_position_embeddings $MAX_POSITION_EMBEDDINGS \
+    --weight_decay $WEIGHT_DECAY \
+    --codebook_size $CODEBOOK_SIZE \
+    --batch_size $BATCH_SIZE \
+    --hidden_size $HIDDEN_SIZE \
+    --max_epochs $MAX_EPOCHS \
+    --devices $DEVICES \
+    --gpu_ids "$GPU_IDS" \
+    --tb_name "$TB_NAME" \
+    --seed $SEED

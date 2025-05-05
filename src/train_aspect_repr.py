@@ -5,18 +5,20 @@ import lightning as L
 from pytorch_lightning.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
 
-from a_module import AModule
-from mind_dm_enc import MINDEncDataModule
+from modules.aspect_enc import AspectRepr
+from src.data_modules.mind_aspect_data import MINDEncDataModule
 import torch
 import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ['HF_HOME'] = './cache/'
+torch.set_float32_matmul_precision('medium')
+
+# TODO: generalise to different dataset
 MIND_dev_path = Path('/home/users1/hardy/hardy/datasets/mind/MINDlarge_dev')
 MIND_train_path = Path('/home/users1/hardy/hardy/datasets/mind/MINDlarge_train')
-torch.set_float32_matmul_precision('medium')
 mind = MINDEncDataModule(train_path=MIND_train_path, dev_path=MIND_dev_path, batch_size=32)
 
-
+# TODO: generalise to different checking-point save path
 checkpoint_callback = ModelCheckpoint(
     dirpath="./checkpoints",  # Directory to save checkpoints
     filename="amodule-{epoch:02d}-{train_loss:.2f}",  # Filename format
@@ -39,4 +41,4 @@ trainer = L.Trainer(
     callbacks=[checkpoint_callback]  # Add the checkpoint callback
 )
 
-trainer.fit(model=AModule(), datamodule=mind)
+trainer.fit(model=AspectRepr(), datamodule=mind)
