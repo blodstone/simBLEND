@@ -2,8 +2,8 @@
 
 source ./secrets.sh
 uv run python ../encode_vqvae.py \
---model_path $BASE_DIR/checkpoints/rvqvae_aspect_ema_reset_single-epoch=35-val_loss=0.1306.ckpt \
---output_folder $BASE_DIR/outputs/test \
+--model_path $BASE_DIR/checkpoints/rvqvae_aspect_ema_reset_single-epoch=36-val_loss=0.1263.ckpt \
+--output_folder $BASE_DIR/outputs/mind \
 --output_name mind_category \
 --train_path $DATASET_DIR/mind/MINDlarge_train \
 --dev_path $DATASET_DIR/mind/MINDlarge_dev \

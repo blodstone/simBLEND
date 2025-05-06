@@ -11,6 +11,7 @@ dependencies = [
     "lightning==2.5.0",
     "matplotlib>=3.10.1",
     "pandas>=2.2.3",
+    "plotly>=6.0.1",
     "pytorch-metric-learning>=2.8.1",
     "standard-imghdr>=3.13.0",
     "tensorboard>=2.19.0",

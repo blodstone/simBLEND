@@ -265,8 +265,8 @@ class RVQVAE(L.LightningModule):
     Assumes the input to `forward`, `training_step`, `validation_step` is already encoded.
     """
     def __init__(self,
-                 codebook_dim,
-                 codebook_size,
+                 codebook_dim=512,
+                 codebook_size=256,
                  learning_rate=1e-3,
                  num_quantizers=3,
                  commitment_cost=0.25,
@@ -501,6 +501,13 @@ class RVQVAE(L.LightningModule):
         # Return the loss dictionary
         return loss_dict
 
+    def test_step(self, batch, batch_idx):
+        recon_x, vq_loss, _ = self.forward(batch)
+        loss_dict = self.compute_loss(batch, recon_x, vq_loss) 
+        self.log("val_loss", loss_dict['loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val_recon_loss", loss_dict['recon_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("val_vq_loss", loss_dict['vq_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        return loss_dict
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)

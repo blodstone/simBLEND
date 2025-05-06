@@ -7,7 +7,7 @@ import numpy as np
 
 class VQVAEDataModule(L.LightningDataModule):
 
-    def __init__(self, train_file: Path, dev_file: Path, test_file: Optional[None|Path], batch_size: int):
+    def __init__(self, train_file: Optional[None|Path] = None, dev_file: Optional[None|Path] = None, test_file: Optional[None|Path] = None, batch_size: int= 16):
         super().__init__()
         self.train_file = train_file
         self.dev_file = dev_file
@@ -16,9 +16,13 @@ class VQVAEDataModule(L.LightningDataModule):
 
     def setup(self, stage: str):
         if stage == 'fit' or stage is None:
+            if self.train_file is None or self.dev_file is None:                
+                raise ValueError("Train and dev files are not provided.")
             self._load_encoding(self.train_file, "train")
             self._load_encoding(self.dev_file, "dev")
         elif stage == 'validate' or stage == 'predict':
+            if self.dev_file is None:
+                raise ValueError("Dev file is not provided.")
             self._load_encoding(self.dev_file, "dev")
         elif stage == 'test':
             if self.test_file is not None:

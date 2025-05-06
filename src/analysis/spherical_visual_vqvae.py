@@ -26,6 +26,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(42)  # For multi-GPU setups
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
 def visualize_spherical_embeddings(embeddings, labels=None, method='pca', name="spherical_embeddings_visualization.html"):
     """
     Visualize embeddings on a 3D sphere.
@@ -97,69 +98,70 @@ def visualize_spherical_embeddings(embeddings, labels=None, method='pca', name="
     fig.write_html(name)
     # fig.show()
 
-model = AspectRepr.load_from_checkpoint("/home/users1/hardy/hardy/project/vae/checkpoints/amodule-epoch=00-train_loss=0.00.ckpt")  # Replace with your checkpoint path
+if __name__ == '__main__':
+    model = AspectRepr.load_from_checkpoint("/home/users1/hardy/hardy/project/vae/checkpoints/amodule-epoch=00-train_loss=0.00.ckpt")  # Replace with your checkpoint path
 
- # Prepare the dataset
-embeddinq_dim = 384  # Dimensionality of the latent space
-num_embeddings = 512  # Define the number of embeddings
-vae_model = RVQVAE.from_checkpoint(
-    checkpoint_path="/home/users1/hardy/hardy/project/vae/src/checkpoints/rvqvae-epoch=01-val_loss=0.1730.ckpt",  # Replace with your checkpoint path
-    base_model=model,
-    codebook_dim=embeddinq_dim, codebook_size=num_embeddings,
-    learning_rate=1e-3,  # Ensure this matches the learning rate used during training
-)
-vae_model.eval()
-mind = MINDEncDataModule(
-    train_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_train'),
-    dev_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_dev'),
-    batch_size=1,  # Use batch size of 1 for sampling
-)
-mind.setup("fit") 
-# Sample from the latent space directly and decode using the VAE
-vae_embeddings = []
-vae_labels = []
-# Extract embeddings from the train dataset
+    # Prepare the dataset
+    embeddinq_dim = 384  # Dimensionality of the latent space
+    num_embeddings = 512  # Define the number of embeddings
+    vae_model = RVQVAE.from_checkpoint(
+        checkpoint_path="/home/users1/hardy/hardy/project/vae/src/checkpoints/rvqvae-epoch=01-val_loss=0.1730.ckpt",  # Replace with your checkpoint path
+        base_model=model,
+        codebook_dim=embeddinq_dim, codebook_size=num_embeddings,
+        learning_rate=1e-3,  # Ensure this matches the learning rate used during training
+    )
+    vae_model.eval()
+    mind = MINDEncDataModule(
+        train_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_train'),
+        dev_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_dev'),
+        batch_size=1,  # Use batch size of 1 for sampling
+    )
+    mind.setup("fit") 
+    # Sample from the latent space directly and decode using the VAE
+    vae_embeddings = []
+    vae_labels = []
+    # Extract embeddings from the train dataset
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use GPU if available
-model = model.to(device)  # Move the model to the appropriate device
-def calculate(dataloader, name, ori_name):
-    sims = []
-    ori_embeddings = []
-    embeddings = []
-    labels = []
-    for batch in dataloader():
-        # n += 1
-        # if n > 2:
-        #     break
-        # Move batch tensors to the same device as the model
-        batch = NewsBatch(batch)  # Ensure batch is of type NewsBatch
-        batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
-        batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
-        # batch = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch.items()}
-        with torch.no_grad():
-            # Forward pass to get embeddings
-            ori_batch_embeddings = model.forward(batch) # Move embeddings back to CPU for numpy
-            # batch_embeddings= F.normalize(ori_batch_embeddings, dim=1)
-            batch_embeddings, _, _ = vae_model.rvq_layer(vae_model.encoder(ori_batch_embeddings))
-            batch_embeddings = vae_model.decoder(batch_embeddings)
-            batch_labels = batch["labels"].cpu().numpy()  # Move labels back to CPU for numpy
-            embeddings.append(batch_embeddings.cpu().numpy() )
-            ori_embeddings.append(ori_batch_embeddings.cpu().numpy())
-            labels.append(batch_labels)
-            sims.append(cosine_similarity(batch_embeddings.cpu().numpy(), ori_batch_embeddings.cpu().numpy()))
-            # sims.append(cosine_similarity(batch_embeddings.cpu().numpy(), ori_batch_embeddings.cpu().numpy()))
-            # print("Cosine similarity between original and decoded embeddings:", sims[-1])
-    print("Average cosine similarity between original and decoded embeddings:", sum(sims)/len(sims))
-    print("Max cosine similarity between original and decoded embeddings:", max(sims))
-    print("Min cosine similarity between original and decoded embeddings:", min(sims))
-    visualize_spherical_embeddings(np.vstack(embeddings), np.concatenate(labels), 
-                                   method='mds', name=name)
-    visualize_spherical_embeddings(np.vstack(ori_embeddings), np.concatenate(labels), 
-                                   method='mds', name=ori_name)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use GPU if available
+    model = model.to(device)  # Move the model to the appropriate device
+    def calculate(dataloader, name, ori_name):
+        sims = []
+        ori_embeddings = []
+        embeddings = []
+        labels = []
+        for batch in dataloader():
+            # n += 1
+            # if n > 2:
+            #     break
+            # Move batch tensors to the same device as the model
+            batch = NewsBatch(batch)  # Ensure batch is of type NewsBatch
+            batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
+            batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
+            # batch = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch.items()}
+            with torch.no_grad():
+                # Forward pass to get embeddings
+                ori_batch_embeddings = model.forward(batch) # Move embeddings back to CPU for numpy
+                # batch_embeddings= F.normalize(ori_batch_embeddings, dim=1)
+                batch_embeddings, _, _ = vae_model.rvq_layer(vae_model.encoder(ori_batch_embeddings))
+                batch_embeddings = vae_model.decoder(batch_embeddings)
+                batch_labels = batch["labels"].cpu().numpy()  # Move labels back to CPU for numpy
+                embeddings.append(batch_embeddings.cpu().numpy() )
+                ori_embeddings.append(ori_batch_embeddings.cpu().numpy())
+                labels.append(batch_labels)
+                sims.append(cosine_similarity(batch_embeddings.cpu().numpy(), ori_batch_embeddings.cpu().numpy()))
+                # sims.append(cosine_similarity(batch_embeddings.cpu().numpy(), ori_batch_embeddings.cpu().numpy()))
+                # print("Cosine similarity between original and decoded embeddings:", sims[-1])
+        print("Average cosine similarity between original and decoded embeddings:", sum(sims)/len(sims))
+        print("Max cosine similarity between original and decoded embeddings:", max(sims))
+        print("Min cosine similarity between original and decoded embeddings:", min(sims))
+        visualize_spherical_embeddings(np.vstack(embeddings), np.concatenate(labels), 
+                                    method='mds', name=name)
+        visualize_spherical_embeddings(np.vstack(ori_embeddings), np.concatenate(labels), 
+                                    method='mds', name=ori_name)
 
-calculate(mind.val_dataloader, "mds_vqvae_val_spherical_embeddings_visualization.html", "mds_ori_vqvae_val_spherical_embeddings_visualization.html")
-calculate(mind.train_dataloader, "mds_vqvae_train_spherical_embeddings_visualization.html", "mds_ori_vqvae_val_spherical_embeddings_visualization.html")   
+    calculate(mind.val_dataloader, "mds_vqvae_val_spherical_embeddings_visualization.html", "mds_ori_vqvae_val_spherical_embeddings_visualization.html")
+    calculate(mind.train_dataloader, "mds_vqvae_train_spherical_embeddings_visualization.html", "mds_ori_vqvae_val_spherical_embeddings_visualization.html")   
 
 # with torch.no_grad():
 #     embedding_3 = torch.tensor(embeddings[0], dtype=torch.float32, device=device)

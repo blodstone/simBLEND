@@ -11,7 +11,7 @@ def extract_raw_history(file_path):
     df_behaviors = pd.read_csv(Path(file_path) / "behaviors.tsv", header=None, sep='\t')
     df_behaviors.columns = ['impression_id', 'user_id', 'timestamp', 'history', 'impressions']
     df_behaviors['timestamp'] = pd.to_datetime(df_behaviors['timestamp'])
-    df_behaviors['history-1'] = df_behaviors['history'].apply(lambda x: [i+'-1' for i in x.split()] if type(x) == str else [])
+    df_behaviors['history-1'] = df_behaviors['history'].apply(lambda x: [i+'-2' for i in x.split()] if type(x) == str else [])
     cal_history = {}
     for user_id, group in tqdm(df_behaviors.sort_values(by=['user_id', 'timestamp']).groupby('user_id')):
         cum_history = []
@@ -83,25 +83,25 @@ if __name__ ==  '__main__':
     logging.info("Extracting raw history..")
     df_train_histories = extract_raw_history(args.train_path)
     df_train_histories.to_csv(Path(args.output_folder) / 'train_histories.csv', index=False)
-    # df_dev_histories = extract_raw_history(args.dev_path)
-    # df_dev_histories.to_csv(Path(args.output_folder)  / 'dev_histories.csv', index=False)
-    # df_test_histories = extract_raw_history(args.test_path)
-    # df_test_histories.to_csv(Path(args.output_folder)  / 'test_histories.csv', index=False)
+    df_dev_histories = extract_raw_history(args.dev_path)
+    df_dev_histories.to_csv(Path(args.output_folder)  / 'dev_histories.csv', index=False)
+    df_test_histories = extract_raw_history(args.test_path)
+    df_test_histories.to_csv(Path(args.output_folder)  / 'test_histories.csv', index=False)
     logging.info("Loading dictionary..")
     train_aspect_dict = load_dictionary(args.train_a_dict_path)
-    # dev_aspect_dict = load_dictionary(args.dev_a_dict_path)
-    # test_aspect_dict = load_dictionary(args.test_a_dict_path)
+    dev_aspect_dict = load_dictionary(args.dev_a_dict_path)
+    test_aspect_dict = load_dictionary(args.test_a_dict_path)
     model = RVQVAE.load_from_checkpoint(args.model_path, map_location=device)
     model.eval()
     logging.info("Converting history to indices..")
-    df_train_indices = convert_history_to_indices(model, df_train_histories.copy()[:5], train_aspect_dict, 4096, 
+    df_train_indices = convert_history_to_indices(model, df_train_histories.copy(), train_aspect_dict, 4096, 
                                                 device)
-    df_train_indices.to_csv(Path(args.output_folder)  / 'train_histories_indices.csv', index=False)
-    # df_dev_indices = convert_history_to_indices(model, df_dev_histories.copy(), dev_aspect_dict, 4096, 
-    #                                           device)
-    # df_dev_indices.to_csv(Path(args.output_folder)  / f'dev_{args.output_name}_histories_indices.csv', index=False)
-    # df_test_indices = convert_history_to_indices(model, df_test_histories.copy(), test_aspect_dict, 4096, 
-    #                                            device)
-    # df_test_indices.to_csv(Path(args.output_folder)  / 'test_histories_indices.csv', index=False)
+    df_train_indices.to_csv(Path(args.output_folder)  / f'train_{args.output_name}_histories_indices.csv', index=False)
+    df_dev_indices = convert_history_to_indices(model, df_dev_histories.copy(), dev_aspect_dict, 4096, 
+                                              device)
+    df_dev_indices.to_csv(Path(args.output_folder)  / f'dev_{args.output_name}_histories_indices.csv', index=False)
+    df_test_indices = convert_history_to_indices(model, df_test_histories.copy(), test_aspect_dict, 4096, 
+                                               device)
+    df_test_indices.to_csv(Path(args.output_folder)  / 'test_{args.output_name}_histories_indices.csv', index=False)
 
     

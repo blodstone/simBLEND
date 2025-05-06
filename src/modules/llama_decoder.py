@@ -1,3 +1,5 @@
+from pyexpat import model
+from scipy.fftpack import shift
 import torch
 import torch.nn as nn
 import lightning as L
@@ -55,7 +57,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
 
         self.llama = LlamaModel(self.config)
         self.lm_head = nn.Linear(llama_input_dim, codebook_size, bias=False)
-        self.save_hyperparameters('pretrained_models')
+        # self.save_hyperparameters('pretrained_models')
         
     def forward(self, indices, behaviors, attention_mask) -> torch.Tensor:
         """
@@ -90,13 +92,13 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         # The collator prepares the batch with 'input_ids', 'attention_mask', 'labels'
         # indices shape: (B, 1)
         # behaviors shape: (B, 1)
-        indices, behaviors, attention_mask = batch 
+        indices, behaviors, behavior_masks, attention_mask = batch 
         outputs = self(indices, behaviors, attention_mask)
         last_hidden_state = outputs.last_hidden_state
         logits = self.lm_head(last_hidden_state)
         shift_logits = logits[:, :-1, :].contiguous() # Shape: (B, SeqLen-1, codebook_size)
         shift_labels = indices[:, 1:].contiguous()    # Shape: (B, SeqLen-1)
-        shift_behaviors = behaviors[:, 1:].contiguous() # Shape: (B, SeqLen-1)
+        shift_behaviors = behavior_masks[:, 1:].contiguous() # Shape: (B, SeqLen-1)
 
         loss_fct = nn.CrossEntropyLoss(reduction='none', ignore_index=-1)
         per_token_loss = loss_fct(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1))
@@ -104,18 +106,18 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         masked_loss = per_token_loss * behavior_mask.view(-1) # Shape: (B * (SeqLen-1),)
         loss = masked_loss.sum() / behavior_mask.sum().clamp(min=1)
 
-        return loss
+        return loss, shift_logits, shift_labels, behavior_mask
     
 
     def training_step(self, batch, batch_idx):
-        loss = self.common_step(batch, batch_idx)
+        loss, _, _, _ = self.common_step(batch, batch_idx)
         # Log training loss
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         
         return loss
     
     def validation_step(self, batch, batch_idx):
-        loss = self.common_step(batch, batch_idx)
+        loss, _, _, _ = self.common_step(batch, batch_idx)
         # Log validation loss
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         # Log perplexity (optional, but common)
@@ -123,6 +125,30 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         self.log('val_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return loss
     
+    def test_step(self, batch, batch_idx):
+        loss, shift_logits, shift_labels, behavior_mask = self.common_step(batch, batch_idx)
+        self.log('test_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        perplexity = torch.exp(loss)
+        self.log('test_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        flat_logits = shift_logits.view(-1, self.config.vocab_size)
+        flat_labels = shift_labels.view(-1)
+        flat_behavior_mask = behavior_mask.view(-1).bool()
+        valid_logits = flat_logits[flat_behavior_mask & (flat_labels != -1)]
+        valid_labels = flat_labels[flat_behavior_mask & (flat_labels != -1)]
+
+        if valid_labels.numel() > 0:
+            for k in [1, 5, 10]:
+                _, top_k_preds = torch.topk(valid_logits, k=k, dim=-1)
+
+                correct_k = (top_k_preds == valid_labels.unsqueeze(1)).any(dim=-1)
+                accuracy_k = correct_k.float().mean()
+                self.log(f'test_accuracy_top_{k}', accuracy_k, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        else:
+            for k in [1, 5, 10]:
+                self.log(f'test_accuracy_top_{k}', torch.tensor(0, 0, device=self.device), on_step=False, on_epoch=True, prog_bar=True, logger=True )
+        return loss
+
 
     def configure_optimizers(self): # type: ignore
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
