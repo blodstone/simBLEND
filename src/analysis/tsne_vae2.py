@@ -3,13 +3,13 @@ import numpy as np
 from pathlib import Path
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from src.data_modules.mind_aspect_data import MINDEncDataModule, NewsBatch
+from src.data_modules.mind_aspect_data import MINDAspectDataModule, AspectNewsBatch
 from modules.aspect_enc import AspectRepr
 from unknown.train_vae import StandardVAE 
 # Load the trained model and dataset
 model = AspectRepr.load_from_checkpoint("/home/users1/hardy/hardy/project/vae/checkpoints/amodule-epoch=00-train_loss=0.00.ckpt")  # Replace with your checkpoint path
 
-mind = MINDEncDataModule(
+mind = MINDAspectDataModule(
     train_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_train'),
     dev_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_dev'),
     batch_size=1,
@@ -29,7 +29,7 @@ for batch in mind.train_dataloader():
     if n > 3:
         break
     # Move batch tensors to the same device as the model
-    batch = NewsBatch(batch)  # Ensure batch is of type NewsBatch
+    batch = AspectNewsBatch(batch)  # Ensure batch is of type NewsBatch
     batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
     batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
     # batch = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch.items()}
@@ -52,14 +52,14 @@ vae_model = StandardVAE.from_checkpoint(
     learning_rate=1e-3,  # Ensure this matches the learning rate used during training
 )
 vae_model.eval()
-mind = MINDEncDataModule(
+mind = MINDAspectDataModule(
     train_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_train'),
     dev_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_dev'),
     batch_size=1,  # Use batch size of 1 for sampling
 )
 mind.setup("fit") 
 sample_batch = next(iter(mind.train_dataloader()))
-sample_batch = NewsBatch(sample_batch)  # Ensure batch is of type NewsBatch
+sample_batch = AspectNewsBatch(sample_batch)  # Ensure batch is of type NewsBatch
 sample_batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in sample_batch["news"]["text"].items()}
 
 # Pass the reference sample through the VAE to get the latent representation

@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 from pathlib import Path
-import re
 import pandas as pd
 import numpy as np
 from typing import Any, Dict, List, Optional, TypedDict
 import lightning as L
 import torch
 from torch.utils.data import DataLoader, Dataset
-from transformers import AutoTokenizer
+from transformers.models.auto.tokenization_auto import AutoTokenizer
+from data_modules.mind_component import load_news_data
 
-class NewsBatch(TypedDict):
+class AspectNewsBatch(TypedDict):
     news: Dict[str, Any]
     labels: torch.Tensor
 
@@ -26,7 +26,7 @@ class DatasetCollate:
         self.tokenizer_name = tokenizer_name
         self.tokenizer = None
 
-    def __call__(self, batch) -> NewsBatch:
+    def __call__(self, batch) -> AspectNewsBatch:
         if self.tokenizer is None:
             # Initialize the tokenizer lazily
             self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
@@ -35,7 +35,7 @@ class DatasetCollate:
         transformed_news = self._tokenize_df(pd.concat(news, axis=1).T)
         labels = torch.tensor(labels).long()
 
-        return NewsBatch(news=transformed_news, labels=labels)
+        return AspectNewsBatch(news=transformed_news, labels=labels)
 
     def _tokenize_plm(self, text: List[str]):
         if self.tokenizer is None:
@@ -54,7 +54,7 @@ class DatasetCollate:
         batch_out["text"] = text        
         return batch_out
 
-class MINDEncDataset(Dataset):
+class MINDAspectDataset(Dataset):
 
     def __init__(self, news: pd.DataFrame):
         self.news = news
@@ -67,7 +67,7 @@ class MINDEncDataset(Dataset):
     def __len__(self):
         return len(self.news)
 
-class MINDEncDataModule(L.LightningDataModule):
+class MINDAspectDataModule(L.LightningDataModule):
 
     def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, 
                  batch_size: int = 32, max_title_len=30, max_abstract_len=100, plm_name: str = "answerdotai/ModernBERT-large"):
@@ -83,67 +83,16 @@ class MINDEncDataModule(L.LightningDataModule):
         self.max_title_len = max_title_len
         self.max_abstract_len = max_abstract_len
 
-    def _word_tokenize(self, sentence: str) -> List[str]:
-        """Splits a sentence into word list using regex.
-
-        Args:
-            sentence:
-                Input sentence
-
-        Returns:
-            List of words.
-        """
-        pat = re.compile(r"[\w]+|[.,!?;|]")
-        if isinstance(sentence, str):
-            return pat.findall(sentence.lower())
-        else:
-            return []
     
     def _load_news_data(self, path: Path, split: str):
-        columns_names = [
-                "nid",
-                "category",
-                "subcategory",
-                "title",
-                "abstract",
-                "url",
-                "title_entities",
-                "abstract_entities",
-            ]
-        news = pd.read_table(
-                filepath_or_buffer=path / "news.tsv",
-                header=None,
-                names=columns_names,
-                usecols=range(len(columns_names)),
-            )
-        news = news.drop(columns=["url"])
-        news["abstract"] = news["abstract"].fillna("")
-        news["title_entities"] = news["title_entities"].fillna("[]")
-        news["abstract_entities"] = news["abstract_entities"].fillna("[]")
-        # news = news.set_index("nid", drop=True)
-        if split == "train":
-            news_category = news["category"].drop_duplicates().reset_index(drop=True)
-            categ2index = {v: k + 1 for k, v in news_category.to_dict().items()}
-            df = pd.DataFrame(categ2index.items(), columns=["word", "index"])
-            df.to_csv(path.parent / 'categ2index.tsv', index=False, sep="\t")
-            news["category_class"] = news["category"].apply(
-                lambda category: categ2index.get(category, 0)
-            )
+        news = load_news_data(path, split)
+        if split == 'train':
             self.train_news_data = news
-        elif split == "dev":
-            fpath = path.parent / "categ2index.tsv"
-            categ2index = pd.read_table(fpath, sep="\t").set_index("word")["index"].to_dict()
-            news["category_class"] = news["category"].apply(
-                lambda category: categ2index.get(category, 0)
-            )
+        elif split == 'dev':
             self.dev_news_data = news
         elif split == 'test':
-            fpath = path.parent / "categ2index.tsv"
-            categ2index = pd.read_table(fpath, sep="\t").set_index("word")["index"].to_dict()
-            news["category_class"] = news["category"].apply(
-                lambda category: categ2index.get(category, 0)
-            )
             self.test_news_data = news
+        
         
     def setup(self, stage):
         if stage == 'fit' or stage is None:
@@ -160,7 +109,7 @@ class MINDEncDataModule(L.LightningDataModule):
     def train_dataloader(self, shuffle=True, num_workers=30):
         if self.train_news_data is None:
             raise ValueError("Train news data is not loaded.")
-        self.train_dataset = MINDEncDataset(self.train_news_data)
+        self.train_dataset = MINDAspectDataset(self.train_news_data)
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
@@ -172,14 +121,14 @@ class MINDEncDataModule(L.LightningDataModule):
     def val_dataloader(self):
         if self.dev_news_data is None:
             raise ValueError("Dev news data is not loaded.")
-        self.dev_dataset = MINDEncDataset(self.dev_news_data)
+        self.dev_dataset = MINDAspectDataset(self.dev_news_data)
         return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False,
             collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
     
     def test_dataloader(self):
         if self.test_news_data is None:
             raise ValueError("Test news data is not loaded.")
-        self.test_dataset = MINDEncDataset(self.test_news_data)
+        self.test_dataset = MINDAspectDataset(self.test_news_data)
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, 
                           collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
     

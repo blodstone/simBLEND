@@ -11,12 +11,15 @@ class SeqVQVAEDataModule(L.LightningDataModule):
     
     def __init__(self, train_file: Optional[None|Path] = None, 
                  dev_file: Optional[None|Path] = None, 
-                 test_file: Optional[None|Path] = None, batch_size: int = 16):
+                 test_file: Optional[None|Path] = None, 
+                 batch_size: int = 16,
+                 max_len: int = 4096):
         super().__init__()
         self.train_file = train_file
         self.dev_file = dev_file
         self.test_file = test_file
         self.batch_size = batch_size
+        self.max_len = max_len
 
     def setup(self, stage: str) -> None:
         if stage == 'fit' or stage is None:
@@ -43,12 +46,10 @@ class SeqVQVAEDataModule(L.LightningDataModule):
             if type(datum) != str:
                 continue
             datum = datum.split()
-            if len(datum) < 5:
+            if len(datum) < 2:
                 continue
-            indices, behaviors = zip(*[x.split('-') for x in datum])
-            behaviors_masks = ['0' if i == '2' else i for i in behaviors]
-            behaviors = ['1' if i == '2' else i for i in behaviors]
-            indices_dict[k] = ([int(x) for x in indices], [int(x) for x in behaviors], [int(x) for x in behaviors_masks])
+            indices = datum
+            indices_dict[k] = [int(x) for x in indices]
         if split == "train":
             self.train_indices = indices_dict
         elif split == "dev":
@@ -65,7 +66,7 @@ class SeqVQVAEDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=shuffle,
             num_workers=num_workers,
-            collate_fn=DatasetCollate(),
+            collate_fn=DatasetCollate(self.max_len),
         )
 
     def val_dataloader(self, num_workers=30):
@@ -73,14 +74,14 @@ class SeqVQVAEDataModule(L.LightningDataModule):
             raise ValueError("Dev news data is not loaded.")
         self.dev_dataset = SeqVQVAEDataset(self.dev_indices)
         return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False,
-            num_workers=num_workers, collate_fn=DatasetCollate())
+            num_workers=num_workers, collate_fn=DatasetCollate(self.max_len))
 
     def test_dataloader(self, num_workers=30) -> Any:
         if self.test_indices is None:
             raise ValueError("Test news data is not loaded.")
         self.test_dataset = SeqVQVAEDataset(self.test_indices)
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False,
-            collate_fn=DatasetCollate(), num_workers=num_workers)
+            collate_fn=DatasetCollate(self.max_len), num_workers=num_workers)
         
 
 class SeqVQVAEDataset(Dataset):
@@ -89,28 +90,30 @@ class SeqVQVAEDataset(Dataset):
         self.keys = list(indices_dict.keys())
 
     def __getitem__(self, index):
+        
         key = self.keys[index]
-        indices = self.indices_dict[key][0]
-        behaviors = self.indices_dict[key][1]
-        return key, indices, behaviors
+        indices = self.indices_dict[key]
+
+        return key, indices
     
     def __len__(self):
         return len(self.keys)
 
 class DatasetCollate:
+
+    def __init__(self, max_len):
+        super().__init__()
+        self.max_len = max_len
+
     def __call__(self, batch):
-        _, indices, behaviors, behavior_masks = zip(*batch)
-        max_len = max(len(seq) for seq in indices)
+        _, indices = zip(*batch)
+        max_len = min(self.max_len, max(len(seq) for seq in indices))
         padded_indices = torch.zeros(len(indices), max_len).long()  
-        padded_behaviors = torch.zeros(len(indices), max_len).long()
-        padded_behavior_masks = torch.full((len(indices), max_len), fill_value=-1, dtype=torch.long)
         attention_mask = torch.zeros(len(indices), max_len).long()
 
         for i, seq in enumerate(indices):
-            padded_indices[i, :len(seq) ] = torch.tensor(seq, dtype=torch.long)
-            padded_behaviors[i, :len(seq)] = torch.tensor(seq, dtype=torch.long)
+            current_len = len(seq)
+            padded_indices[i, :current_len] = torch.tensor(seq[:current_len], dtype=torch.long)
+            attention_mask[i, :current_len] = 1
 
-            padded_behavior_masks[i, :len(seq)] = torch.tensor(behaviors[i], dtype=torch.long)
-            attention_mask[i, :len(seq)] = 1
-
-        return padded_indices, padded_behaviors, padded_behavior_masks, attention_mask
+        return padded_indices, attention_mask

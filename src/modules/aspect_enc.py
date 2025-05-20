@@ -1,7 +1,7 @@
 from transformers import AutoModel, AutoConfig
 from pytorch_metric_learning.losses import SupConLoss
 from pytorch_metric_learning.distances import DotProductSimilarity
-from data_modules.mind_aspect_data import NewsBatch
+from data_modules.mind_aspect_data import AspectNewsBatch
 import torch
 import lightning as L
 
@@ -14,7 +14,7 @@ class AspectRepr(L.LightningModule):
         distance_func = DotProductSimilarity(normalize_embeddings=False)
         self.supcofn_loss = SupConLoss(temperature=0.1, distance=distance_func)
 
-    def forward(self, batch: NewsBatch) -> torch.Tensor:
+    def forward(self, batch: AspectNewsBatch) -> torch.Tensor:
         input_ids = batch["news"]["text"]["input_ids"]
         attention_mask = batch["news"]["text"]["attention_mask"]
         outputs = self.text_encoder(input_ids=input_ids, attention_mask=attention_mask)
@@ -22,7 +22,7 @@ class AspectRepr(L.LightningModule):
         return embeddings[:, 0, :]
 
 
-    def training_step(self, batch: NewsBatch, batch_idx: int):
+    def training_step(self, batch: AspectNewsBatch, batch_idx: int):
         embeddings = self.forward(batch)
         labels = batch["labels"]
         # Normalize embeddings
@@ -34,7 +34,7 @@ class AspectRepr(L.LightningModule):
         )
         return loss
     
-    def validation_step(self, batch: NewsBatch, batch_idx: int):
+    def validation_step(self, batch: AspectNewsBatch, batch_idx: int):
         embeddings = self.forward(batch)
         labels = batch["labels"]
         # Normalize embeddings

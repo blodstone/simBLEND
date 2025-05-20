@@ -9,6 +9,8 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 import torch.nn.functional as F
 from transformers.models.llama import LlamaConfig, LlamaModel, LlamaForCausalLM
 from pytorch_lightning.loggers import TensorBoardLogger
+from data_modules.mind_recsys_data import MINDRecSysDataModule
+from modules.lstur import LSTUR
 from modules.llama_decoder import LlamaDecoderForNextArticle
 from data_modules.indices_data import SeqVQVAEDataModule
 
@@ -18,17 +20,22 @@ if __name__ == '__main__':
     # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
     torch.set_float32_matmul_precision('medium')
     parser = argparse.ArgumentParser(description="Train RVQVAE model.")    
+    parser.add_argument("--train_path", type=Path, required=True, help="Path to the training data.")
+    parser.add_argument("--dev_path", type=Path, required=True, help="Path to the development/validation data.")
+    parser.add_argument("--test_path", type=Path, default=None, help="Path to the test data (optional).")
+    parser.add_argument("--checkpoint_path", type=Path, required=True, help="Path to save the model checkpoints.")
+    parser.add_argument("--glove_path", type=Path, default=None, help="Path to the GloVe embeddings file (optional).")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training.")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate for the optimizer.")
-    parser.add_argument("--intermediate_size", type=int, default=4096, help="Intermediate size for the Llama model.")
-    parser.add_argument("--num_hidden_layers", type=int, default=8, help="Number of hidden layers for the Llama model.")
-    parser.add_argument("--num_attention_heads", type=int, default=8, help="Number of attention heads for the Llama model.")
-    parser.add_argument("--max_position_embeddings", type=int, default=4096, help="Maximum position embeddings for the Llama model.")
-    parser.add_argument("--train_path", type=str, required=True, help="Path to the training dataset.")
-    parser.add_argument("--dev_path", type=str, required=True, help="Path to the development dataset.")
-    parser.add_argument('--checkpoint_path', type=str, required=True, help='Path to the checkpoint file.')
-    parser.add_argument("--codebook_size", type=int, default=512, help="Number of embeddings.")
-    parser.add_argument("--batch_size", type=int, default=24, help="Batch size for training.")
-    parser.add_argument("--hidden_size", type=int, default=512, help="Size of the hidden layer.")
+    parser.add_argument("--cat_vocab_size", type=int, required=True, default=18, help="Category vocabulary size.")
+    parser.add_argument("--subcat_vocab_size", type=int, required=True, default=285, help="Subcategory vocabulary size.")
+    parser.add_argument("--user_id_size", type=int, required=True, default=711222, help="User ID vocabulary size.")
+    parser.add_argument("--window_size", type=int, default=3, help="Window size for context.")
+    parser.add_argument("--embedding_size", type=int, default=300, help="Embedding size.")
+    parser.add_argument("--num_negative_samples_k", type=int, default=5, help="Number of negative samples.")
+    parser.add_argument("--user_hidden_size", type=int, default=300, help="User hidden layer size.")
+    parser.add_argument("--final_hidden_size", type=int, default=512, help="Final hidden layer size.")
+    parser.add_argument("--warm_up_epochs", type=int, default=1, help="Number of warm-up epochs.")
     parser.add_argument("--max_epochs", type=int, default=3, help="Maximum number of training epochs.")
     parser.add_argument("--devices", type=int, default=2, help="Number of GPUs to use.")
     parser.add_argument("--gpu_ids", type=str, default='3,4', help="GPU ids to use.")
@@ -41,25 +48,29 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
-
-    seqvqvae = LlamaDecoderForNextArticle(
-        learning_rate=args.learning_rate,
-        codebook_size=args.codebook_size,
-        hidden_size=args.hidden_size,
-        intermediate_size=args.intermediate_size,
-        num_hidden_layers=args.num_hidden_layers,
-        num_attention_heads=args.num_attention_heads,
-        max_position_embeddings=args.max_position_embeddings,
-    )
-
-    seqvqvae_data_module = SeqVQVAEDataModule(
-        train_file=Path(args.train_path),
-        dev_file=Path(args.dev_path),
-        test_file=None,
+    data_module = MINDRecSysDataModule(
+        train_path=args.train_path,
+        dev_path=args.dev_path,
+        test_path=args.test_path,
+        glove_path=args.glove_path,
         batch_size=args.batch_size,
-        max_len=args.max_position_embeddings
     )
-    seqvqvae_data_module.setup('fit')
+    data_module.setup('fit')
+
+    # Initialize the LSTUR model
+
+    lstur = LSTUR(
+        cat_vocab_size=args.cat_vocab_size,
+        subcat_vocab_size=args.subcat_vocab_size,
+        user_id_size=args.user_id_size,
+        embedding_size=args.embedding_size,
+        user_hidden_size=args.user_hidden_size,
+        final_hidden_size=args.final_hidden_size,
+        window_size=args.window_size,
+        num_negative_samples_k=args.num_negative_samples_k,
+        learning_rate=args.learning_rate,
+        warm_up_epochs=args.warm_up_epochs,
+    )
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.checkpoint_path,  # Directory to save checkpoints
@@ -86,4 +97,4 @@ if __name__ == '__main__':
     )
 
     # Train the model
-    trainer.fit(seqvqvae,  train_dataloaders=seqvqvae_data_module.train_dataloader(), val_dataloaders=seqvqvae_data_module.val_dataloader())
+    trainer.fit(lstur,  train_dataloaders=data_module.train_dataloader(), val_dataloaders=data_module.val_dataloader())

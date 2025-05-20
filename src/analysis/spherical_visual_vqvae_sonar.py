@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from src.data_modules.mind_aspect_data import MINDEncDataModule, NewsBatch
+from src.data_modules.mind_aspect_data import MINDAspectDataModule, AspectNewsBatch
 from modules.aspect_enc import AspectRepr
 from unknown.train_vae import StandardVAE 
 import numpy as np

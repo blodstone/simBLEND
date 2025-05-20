@@ -5,7 +5,7 @@ import torch
 import logging
 import tqdm
 import numpy as np
-from data_modules.mind_aspect_data import MINDEncDataModule, NewsBatch
+from data_modules.mind_aspect_data import MINDAspectDataModule, AspectNewsBatch
 from modules.aspect_enc import AspectRepr
 
 def save_vector_dict(vector_dict, output_path):
@@ -35,7 +35,7 @@ def process_dataloader(logger, device, model, dataloader, output_file):
     logger.info(f'Processing dataloader of {output_file}...')
     save_dataset = {}
     for article in tqdm.tqdm(dataloader):
-        batch = NewsBatch(article)
+        batch = AspectNewsBatch(article)
         batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
         batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
         nid = batch['news']['news_ids']
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     MIND_dev_path = Path(args.dev_path)
     MIND_train_path = Path(args.train_path)
     MIND_test_path = Path(args.test_path)
-    mind = MINDEncDataModule(train_path=MIND_train_path, dev_path=MIND_dev_path, test_path=MIND_test_path, batch_size=1)
+    mind = MINDAspectDataModule(train_path=MIND_train_path, dev_path=MIND_dev_path, test_path=MIND_test_path, batch_size=1)
     mind.setup("fit") 
     process_dataloader(logger, device, model, mind.train_dataloader(shuffle=False, num_workers=1), f'train_{args.output_name}_aspect_vectors.txt')
     process_dataloader(logger, device, model, mind.val_dataloader(), f'dev_{args.output_name}_aspect_vectors.txt')

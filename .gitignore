@@ -16,5 +16,6 @@ lightning_logs/
 checkpoints/
 tb_logs/
 unknown/
+library/
 outputs/
 secrets.sh

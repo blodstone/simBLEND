@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from src.data_modules.mind_aspect_data import MINDEncDataModule, NewsBatch
+from src.data_modules.mind_aspect_data import MINDAspectDataModule, AspectNewsBatch
 from modules.aspect_enc import AspectRepr
 from unknown.train_vae import StandardVAE 
 import numpy as np
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         learning_rate=1e-3,  # Ensure this matches the learning rate used during training
     )
     vae_model.eval()
-    mind = MINDEncDataModule(
+    mind = MINDAspectDataModule(
         train_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_train'),
         dev_path=Path('/home/users1/hardy/hardy/project/vae/tests/test_dataset/MINDtest_dev'),
         batch_size=1,  # Use batch size of 1 for sampling
@@ -135,7 +135,7 @@ if __name__ == '__main__':
             # if n > 2:
             #     break
             # Move batch tensors to the same device as the model
-            batch = NewsBatch(batch)  # Ensure batch is of type NewsBatch
+            batch = AspectNewsBatch(batch)  # Ensure batch is of type NewsBatch
             batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
             batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
             # batch = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch.items()}

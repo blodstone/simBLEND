@@ -7,23 +7,23 @@ DEV_DATA_PATH=$BASE_DIR/outputs/mind/dev_mind_category_histories_indices.csv
 CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
 # Model/Llama Parameters (Defaults from script, modify as needed)
 CODEBOOK_SIZE=256
-HIDDEN_SIZE=1024
-INTERMEDIATE_SIZE=2048
+HIDDEN_SIZE=1248
+INTERMEDIATE_SIZE=3256
 NUM_HIDDEN_LAYERS=12
 NUM_ATTENTION_HEADS=12
 MAX_POSITION_EMBEDDINGS=4096
 
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=5e-4
+LEARNING_RATE=5e-5
 WARMUP_EPOCHS=1
-WEIGHT_DECAY=0.01
 
 # Training Parameters (Defaults from script, modify as needed)
-BATCH_SIZE=12
+BATCH_SIZE=24
+GRAD_ACCUM=2
 MAX_EPOCHS=10
 DEVICES=1
-GPU_IDS=1 # Comma-separated list of GPU IDs
-TB_NAME="seqvqvae2"
+GPU_IDS=4 # Comma-separated list of GPU IDs
+TB_NAME="seqvqvae4"
 SEED=42
 
 
@@ -36,11 +36,11 @@ uv run python ../train_seq_vqvae.py \
     --num_hidden_layers $NUM_HIDDEN_LAYERS \
     --num_attention_heads $NUM_ATTENTION_HEADS \
     --max_position_embeddings $MAX_POSITION_EMBEDDINGS \
-    --weight_decay $WEIGHT_DECAY \
     --codebook_size $CODEBOOK_SIZE \
     --batch_size $BATCH_SIZE \
     --hidden_size $HIDDEN_SIZE \
     --max_epochs $MAX_EPOCHS \
+    --grad_accum $GRAD_ACCUM \
     --devices $DEVICES \
     --gpu_ids "$GPU_IDS" \
     --tb_name "$TB_NAME" \

@@ -11,21 +11,23 @@ def extract_raw_history(file_path):
     df_behaviors = pd.read_csv(Path(file_path) / "behaviors.tsv", header=None, sep='\t')
     df_behaviors.columns = ['impression_id', 'user_id', 'timestamp', 'history', 'impressions']
     df_behaviors['timestamp'] = pd.to_datetime(df_behaviors['timestamp'])
-    df_behaviors['history-1'] = df_behaviors['history'].apply(lambda x: [i+'-2' for i in x.split()] if type(x) == str else [])
+    df_behaviors['history-1'] = df_behaviors['history'].apply(lambda x: x.split() if type(x) == str else [])
     cal_history = {}
     for user_id, group in tqdm(df_behaviors.sort_values(by=['user_id', 'timestamp']).groupby('user_id')):
         cum_history = []
         for i, (index, row) in enumerate(group.iterrows()):
             if i != 0:
                 row['history-1'].extend(cum_history)
-                cum_history.extend(row['impressions'].split())
+                impression = [i.split('-')[0] for i in row['impressions'].split() if i.endswith('-1')]
+                cum_history.extend(impression)
             else:
-                cum_history = row['impressions'].split()
+                cum_history = [i.split('-')[0] for i in row['impressions'].split() if i.endswith('-1')]
             cal_history[index] = row['history-1']
     history_series = pd.Series(cal_history)
     df_behaviors['history-1'] = history_series
     df_behaviors['history-1'] = df_behaviors['history-1'].apply(lambda x: ' '.join(x))
-    return df_behaviors[['impression_id', 'user_id', 'history-1']]
+    last_user_rows = df_behaviors.sort_values(by='timestamp').groupby('user_id').tail(1)
+    return last_user_rows[['impression_id', 'user_id', 'history-1']]
 
 def load_dictionary(file_path):
     indices_dict = {}
@@ -38,30 +40,22 @@ def load_dictionary(file_path):
     return indices_dict
 
 
-def convert_history_to_indices(model, df_histories, aspect_dict, batch_size, device):
+def convert_history_to_indices(model, df_histories, aspect_dict, device):
     for idx, row in tqdm(df_histories.iterrows(), total=len(df_histories)):
         all_article_vectors = []
-        all_is_clicked = []
-        for article in row['history-1'].split():
-            article_id, is_clicked = article.split('-')
+        for article_id in row['history-1'].split():
             article_id = article_id[1:]
             article_vector = aspect_dict[article_id]
             all_article_vectors.append(article_vector)
-            all_is_clicked.append(int(is_clicked))
-        indices_with_clicked = []
+        batch_indices = []
         if len(all_article_vectors) > 0:
             batch_tensor = torch.tensor(all_article_vectors, dtype=torch.float32, device=device)
             with torch.no_grad():
                 _, _, batch_indices = model.rvq_layer(model.encoder(batch_tensor))
                 batch_indices = batch_indices[-1].squeeze(1).tolist()  # Get the last layer indices and convert to list
             # Append indices with corresponding clicked information
-            indices_with_clicked = [f'{bi}-{bc}' for bi, bc in zip(batch_indices, all_is_clicked)]
-        df_histories.loc[idx, 'history_indices'] = ' '.join(indices_with_clicked)
+        df_histories.loc[idx, 'history_indices'] = ' '.join([str(i) for i in batch_indices])
     return df_histories
-
-
-
-
         
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description="Encode user history to indices.")
@@ -94,14 +88,11 @@ if __name__ ==  '__main__':
     model = RVQVAE.load_from_checkpoint(args.model_path, map_location=device)
     model.eval()
     logging.info("Converting history to indices..")
-    df_train_indices = convert_history_to_indices(model, df_train_histories.copy(), train_aspect_dict, 4096, 
-                                                device)
+    df_train_indices = convert_history_to_indices(model, df_train_histories.copy(), train_aspect_dict, device)
     df_train_indices.to_csv(Path(args.output_folder)  / f'train_{args.output_name}_histories_indices.csv', index=False)
-    df_dev_indices = convert_history_to_indices(model, df_dev_histories.copy(), dev_aspect_dict, 4096, 
-                                              device)
+    df_dev_indices = convert_history_to_indices(model, df_dev_histories.copy(), dev_aspect_dict, device)
     df_dev_indices.to_csv(Path(args.output_folder)  / f'dev_{args.output_name}_histories_indices.csv', index=False)
-    df_test_indices = convert_history_to_indices(model, df_test_histories.copy(), test_aspect_dict, 4096, 
-                                               device)
+    df_test_indices = convert_history_to_indices(model, df_test_histories.copy(), test_aspect_dict, device)
     df_test_indices.to_csv(Path(args.output_folder)  / 'test_{args.output_name}_histories_indices.csv', index=False)
 
     

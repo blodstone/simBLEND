@@ -1,12 +1,8 @@
-from pyexpat import model
-from scipy.fftpack import shift
 import torch
 import torch.nn as nn
 import lightning as L
 
-import random
 from transformers.models.llama import LlamaConfig, LlamaModel
-from transformers.optimization import get_linear_schedule_with_warmup
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 
 class LlamaDecoderForNextArticle(L.LightningModule):
@@ -44,7 +40,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         self.learning_rate = learning_rate
         self.warmup_epochs = warmup_epochs
         self.embedding = nn.Embedding(codebook_size, hidden_size)
-        llama_input_dim = hidden_size + 1 # Account for concatenated behavior
+        llama_input_dim = hidden_size # Account for concatenated behavior
 
         self.config = LlamaConfig(
             vocab_size=codebook_size,
@@ -56,10 +52,11 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         )
 
         self.llama = LlamaModel(self.config)
+        self.llama.gradient_checkpointing_enable()
         self.lm_head = nn.Linear(llama_input_dim, codebook_size, bias=False)
         # self.save_hyperparameters('pretrained_models')
         
-    def forward(self, indices, behaviors, attention_mask) -> torch.Tensor:
+    def forward(self, indices, attention_mask) -> torch.Tensor:
         """
         Forward pass using the LlamaModel.
 
@@ -78,36 +75,34 @@ class LlamaDecoderForNextArticle(L.LightningModule):
             torch.Tensor: Output tensor representing the logits for the next article prediction
                           for each position in the sequence. Shape: (batch_size, seq_len, num_articles).
         """
-        # indices shape: (B, )
-        # behaviors shape: (B, )
+        # indices shape: (B, L)
+        # behaviors shape: (B, L)
         # Create input embeddings
         input_embeddings = self.embedding(indices) 
-        input_embeddings_appended = torch.cat((input_embeddings, behaviors.unsqueeze(2)), dim=2)
+        # input_embeddings shape: (B, L, E1)
+        # input_embeddings shape: (B, L, E2)
         # Concatenate behaviors with input embeddings
-        # Pass the combined input through the Llama model
-
-        return self.llama(inputs_embeds=input_embeddings_appended, attention_mask=attention_mask)
+        # Pass the combined input through the Llama model 
+        return self.llama(inputs_embeds=input_embeddings, attention_mask=attention_mask)
 
     def common_step(self, batch, batch_idx):
         # The collator prepares the batch with 'input_ids', 'attention_mask', 'labels'
         # indices shape: (B, 1)
         # behaviors shape: (B, 1)
-        indices, behaviors, behavior_masks, attention_mask = batch 
-        outputs = self(indices, behaviors, attention_mask)
+        indices, attention_mask = batch 
+        outputs = self(indices, attention_mask)
         last_hidden_state = outputs.last_hidden_state
         logits = self.lm_head(last_hidden_state)
         shift_logits = logits[:, :-1, :].contiguous() # Shape: (B, SeqLen-1, codebook_size)
         shift_labels = indices[:, 1:].contiguous()    # Shape: (B, SeqLen-1)
-        shift_behaviors = behavior_masks[:, 1:].contiguous() # Shape: (B, SeqLen-1)
+        shift_target_mask = attention_mask[:, 1:].contiguous()
 
-        loss_fct = nn.CrossEntropyLoss(reduction='none', ignore_index=-1)
-        per_token_loss = loss_fct(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1))
-        behavior_mask = (shift_behaviors == 1).float() # Shape: (B, SeqLen-1)
-        masked_loss = per_token_loss * behavior_mask.view(-1) # Shape: (B * (SeqLen-1),)
-        loss = masked_loss.sum() / behavior_mask.sum().clamp(min=1)
-
-        return loss, shift_logits, shift_labels, behavior_mask
-    
+        loss_fct = nn.CrossEntropyLoss(reduction='none')
+        per_token_loss = loss_fct(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1)) # type: ignore
+        per_token_loss = per_token_loss.view(shift_labels.shape[0], shift_labels.shape[1])
+        masked_loss_contributions = per_token_loss * shift_target_mask # Element-wise multiplication
+        loss = masked_loss_contributions.sum() / shift_target_mask.sum().clamp(min=1)
+        return loss, shift_logits, shift_labels, shift_target_mask
 
     def training_step(self, batch, batch_idx):
         loss, _, _, _ = self.common_step(batch, batch_idx)
@@ -126,27 +121,27 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         return loss
     
     def test_step(self, batch, batch_idx):
-        loss, shift_logits, shift_labels, behavior_mask = self.common_step(batch, batch_idx)
+        loss, shift_logits, shift_labels, attention_mask = self.common_step(batch, batch_idx)
         self.log('test_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         perplexity = torch.exp(loss)
         self.log('test_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         flat_logits = shift_logits.view(-1, self.config.vocab_size)
         flat_labels = shift_labels.view(-1)
-        flat_behavior_mask = behavior_mask.view(-1).bool()
-        valid_logits = flat_logits[flat_behavior_mask & (flat_labels != -1)]
-        valid_labels = flat_labels[flat_behavior_mask & (flat_labels != -1)]
+        flat_attention_mask = attention_mask.view(-1).bool()
+        valid_logits = flat_logits[flat_attention_mask]
+        valid_labels = flat_labels[flat_attention_mask]
 
         if valid_labels.numel() > 0:
-            for k in [1, 5, 10]:
+            for k in [1, 5, 10, 25]:
                 _, top_k_preds = torch.topk(valid_logits, k=k, dim=-1)
 
                 correct_k = (top_k_preds == valid_labels.unsqueeze(1)).any(dim=-1)
                 accuracy_k = correct_k.float().mean()
                 self.log(f'test_accuracy_top_{k}', accuracy_k, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         else:
-            for k in [1, 5, 10]:
-                self.log(f'test_accuracy_top_{k}', torch.tensor(0, 0, device=self.device), on_step=False, on_epoch=True, prog_bar=True, logger=True )
+            for k in [1, 5, 10, 25]:
+                self.log(f'test_accuracy_top_{k}', torch.tensor(0, device=self.device), on_step=False, on_epoch=True, prog_bar=True, logger=True )
         return loss
 
 
