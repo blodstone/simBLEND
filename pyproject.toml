@@ -14,8 +14,11 @@ dependencies = [
     "plotly>=6.0.1",
     "pytest>=8.3.5",
     "pytorch-metric-learning>=2.8.1",
+    "setfit>=1.1.2",
+    "setuptools>=70.2.0",
     "standard-imghdr>=3.13.0",
     "tensorboard>=2.19.0",
     "torch>=2.7.0",
     "transformers>=4.51.3",
+    "wheel>=0.45.1",
 ]

@@ -150,7 +150,7 @@ class LSTUR(L.LightningModule):
                 batch_individual_losses.append(loss_val)
         total_loss = torch.sum(torch.stack(batch_individual_losses))
         mean_loss_per_positive = total_loss / num_total_positive_samples_in_batch
-        self.log("train_loss", mean_loss_per_positive)
+        self.log("train_loss", mean_loss_per_positive, sync_dist=True)
         return {
             "loss": mean_loss_per_positive,
             "total_loss": total_loss
@@ -189,26 +189,8 @@ class LSTUR(L.LightningModule):
                 batch_individual_losses.append(loss_val)
         total_loss = torch.sum(torch.stack(batch_individual_losses))
         mean_loss_per_positive = total_loss / num_total_positive_samples_in_batch
-        self.log("train_loss", mean_loss_per_positive)
-        # Compute metrics, e.g., accuracy, MRR, etc.
-        # Mask out invalid candidates
-        masked_scores = scores.masked_fill(~batch_candidate_mask.bool(), float('-inf'))
-        masked_labels = labels * batch_candidate_mask
-        # For each user, get the rank of the true item(s)
-        _, ranked_indices = masked_scores.sort(dim=1, descending=True)
-        # Compute MRR
-        batch_size, candidate_size = labels.shape
-        acc_at_1_total = 0.0
-        for i in range(batch_size):
-            true_indices = (masked_labels[i] > 0).nonzero(as_tuple=True)[0]
-            if len(true_indices) == 0:
-                continue
-            top_1_index = ranked_indices[i][0]
-            if top_1_index in true_indices:
-                acc_at_1_total += 1
-        acc_at_1 = acc_at_1_total / batch_size
-        self.log("val_acc@1", acc_at_1, prog_bar=True)
-        return {"val_acc@1": acc_at_1, "val_loss": mean_loss_per_positive, "total_loss": total_loss}
+        self.log("val_loss", mean_loss_per_positive, sync_dist=True)
+        return {"val_loss": mean_loss_per_positive, "val_total_loss": total_loss}
     
     def test_step(self, batch, batch_idx):
         device = batch["user_history"].device
@@ -301,7 +283,7 @@ class LSTUR(L.LightningModule):
                 ndcg_at_k_sum[k_val] += (dcg_at_k / idcg_at_k) if idcg_at_k > 0 else 0.0
 
         avg_mrr = mrr_sum / num_users_with_positives if num_users_with_positives > 0 else 0.0
-        self.log(f"test_mrr", avg_mrr, on_step=False, on_epoch=True, prog_bar=True)
+        self.log(f"test_mrr", avg_mrr, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
 
         for k_val in K_ACC:
             avg_acc_at_k = acc_at_k_sum[k_val] / batch_size # Averaged over all users in batch

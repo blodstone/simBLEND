@@ -68,7 +68,54 @@ def load_history_data(path: Path, split: str, news: pd.DataFrame, fix_history: b
     else:
         raise ValueError(f"Invalid split: {split}")
     return df_behaviors
-        
+
+
+def load_news_data_frame(path: Path, split: str):
+    columns_names = [
+                "nid",
+                "category",
+                "subcategory",
+                "title",
+                "abstract",
+                "url",
+                "title_entities",
+                "abstract_entities",
+                "frame"
+            ]
+    df_news = pd.read_table(
+            filepath_or_buffer=path / "news.tsv",
+            header=None,
+            names=columns_names,
+            usecols=range(len(columns_names)),
+        )
+    df_news = df_news.drop(columns=["url"])
+    df_news["abstract"] = df_news["abstract"].fillna("")
+    df_news["title_entities"] = df_news["title_entities"].fillna("[]")
+    df_news['text'] = df_news['title'] + ' ' + df_news['abstract']
+    df_news["abstract_entities"] = df_news["abstract_entities"].fillna("[]")
+    if split == "train":
+        news_frame = df_news["frame"].drop_duplicates().reset_index(drop=True)
+        frame2index = {v: k + 1 for k, v in news_frame.to_dict().items()}
+        news2frame_index = {k: frame2index.get(v, 0) for k, v in df_news[['nid', 'frame']].values.tolist()}
+        pd.DataFrame(frame2index.items(), columns=["word", "index"]).to_csv(path.parent / 'frame2index.tsv', index=False, sep="\t")
+        df_news["frame_class"] = df_news["frame"].apply(
+            lambda frame: frame2index.get(frame, 0)
+        ).astype(int)
+        pd.DataFrame(news2frame_index.items(), columns=["nid", "frame_class"]).to_csv(path.parent / 'news2frame_index.tsv', index=False, sep="\t")
+
+    elif split == "dev" or split == 'test':
+        frame2index = pd.read_table(path.parent / "frame2index.tsv", sep="\t").set_index("word")["index"].to_dict()
+        df_news["frame_class"] = df_news["frame"].apply(
+            lambda frame: frame2index.get(frame, 0)
+        ).astype(int)
+        news2frame_index = {k: frame2index.get(v, 0) for k, v in df_news[['nid', 'frame']].values.tolist()}
+        pd.DataFrame(frame2index.items(), columns=["word", "index"]).to_csv(path.parent / 'frame2index.tsv', index=False, sep="\t")
+        df_news["frame_class"] = df_news["frame"].apply(
+            lambda frame: frame2index.get(frame, 0)
+        ).astype(int)
+    else:
+        raise ValueError(f"Invalid split: {split}")
+    return df_news
 
 def load_news_data(path: Path, split: str):
     columns_names = [

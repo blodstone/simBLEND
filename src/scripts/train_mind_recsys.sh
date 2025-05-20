@@ -28,8 +28,8 @@ WARMUP_EPOCHS=1
 BATCH_SIZE=24
 GRAD_ACCUM=2
 MAX_EPOCHS=10
-DEVICES=1
-GPU_IDS=4 # Comma-separated list of GPU IDs
+DEVICES=2
+GPU_IDS=3,4 # Comma-separated list of GPU IDs
 TB_NAME="lstur"
 SEED=42
 
@@ -53,4 +53,4 @@ uv run python ../train_mind_recsys.py \
     --devices $DEVICES \
     --gpu_ids "$GPU_IDS" \
     --tb_name "$TB_NAME" \
-    --seed $SEED
+    --seed $SEED 

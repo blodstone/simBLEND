@@ -7,7 +7,7 @@ import lightning as L
 import torch
 from torch.utils.data import DataLoader, Dataset
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from data_modules.mind_component import load_news_data
+from data_modules.mind_component import load_news_data, load_news_data_frame
 
 class AspectNewsBatch(TypedDict):
     news: Dict[str, Any]
@@ -56,12 +56,13 @@ class DatasetCollate:
 
 class MINDAspectDataset(Dataset):
 
-    def __init__(self, news: pd.DataFrame):
+    def __init__(self, news: pd.DataFrame, selected_aspect: str = 'category_class'):
         self.news = news
+        self.selected_aspect = selected_aspect
 
     def __getitem__(self, index):
         news = self.news.iloc[index]
-        label = news["category_class"]
+        label = news[self.selected_aspect]
         return news, label
     
     def __len__(self):
@@ -69,8 +70,15 @@ class MINDAspectDataset(Dataset):
 
 class MINDAspectDataModule(L.LightningDataModule):
 
-    def __init__(self, train_path: Path, dev_path: Path, test_path: Optional[Path] = None, 
-                 batch_size: int = 32, max_title_len=30, max_abstract_len=100, plm_name: str = "answerdotai/ModernBERT-large"):
+    def __init__(self, 
+                 train_path: Path, 
+                 dev_path: Path, 
+                 test_path: Optional[Path] = None, 
+                 batch_size: int = 32, 
+                 max_title_len=30, 
+                 max_abstract_len=100, 
+                 selected_aspect: str = 'category_class',
+                 plm_name: str = "answerdotai/ModernBERT-large"):
         super().__init__()
         self.train_path = train_path
         self.dev_path = dev_path
@@ -82,10 +90,16 @@ class MINDAspectDataModule(L.LightningDataModule):
         self.tokenizer_name = plm_name
         self.max_title_len = max_title_len
         self.max_abstract_len = max_abstract_len
+        self.selected_aspect = selected_aspect
 
     
-    def _load_news_data(self, path: Path, split: str):
-        news = load_news_data(path, split)
+    def _load_news_data(self, path: Path, split: str, selected_aspect: str = 'category_class'):
+        if selected_aspect not in ['category_class', 'frame_class', 'subcategory_class']:
+            raise ValueError('Wrong aspect')
+        if selected_aspect == 'frame_class':
+            news = load_news_data_frame(path, split)
+        else:
+            news = load_news_data(path, split)
         if split == 'train':
             self.train_news_data = news
         elif split == 'dev':
@@ -95,21 +109,21 @@ class MINDAspectDataModule(L.LightningDataModule):
         
         
     def setup(self, stage):
-        if stage == 'fit' or stage is None:
-            self._load_news_data(self.train_path, "train")
-            self._load_news_data(self.dev_path, "dev")
+        if stage == 'fit':
+            self._load_news_data(self.train_path, "train", self.selected_aspect)
+            self._load_news_data(self.dev_path, "dev", self.selected_aspect)
         elif stage == 'validate' or stage == 'predict':
-            self._load_news_data(self.dev_path, "dev")
+            self._load_news_data(self.dev_path, "dev", self.selected_aspect)
         elif stage == 'test':
             if self.test_path is not None:
-                self._load_news_data(self.test_path, "test")
+                self._load_news_data(self.test_path, "test", self.selected_aspect)
             else:
                 raise ValueError("Test path is not provided.")
 
     def train_dataloader(self, shuffle=True, num_workers=30):
         if self.train_news_data is None:
             raise ValueError("Train news data is not loaded.")
-        self.train_dataset = MINDAspectDataset(self.train_news_data)
+        self.train_dataset = MINDAspectDataset(self.train_news_data, selected_aspect=self.selected_aspect)
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
@@ -121,14 +135,14 @@ class MINDAspectDataModule(L.LightningDataModule):
     def val_dataloader(self):
         if self.dev_news_data is None:
             raise ValueError("Dev news data is not loaded.")
-        self.dev_dataset = MINDAspectDataset(self.dev_news_data)
+        self.dev_dataset = MINDAspectDataset(self.dev_news_data, selected_aspect=self.selected_aspect)
         return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False,
             collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
     
     def test_dataloader(self):
         if self.test_news_data is None:
             raise ValueError("Test news data is not loaded.")
-        self.test_dataset = MINDAspectDataset(self.test_news_data)
+        self.test_dataset = MINDAspectDataset(self.test_news_data, selected_aspect=self.selected_aspect)
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, 
                           collate_fn=DatasetCollate(self.tokenizer_name, self.max_title_len, self.max_abstract_len))
     

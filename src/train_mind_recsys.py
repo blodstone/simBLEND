@@ -1,5 +1,4 @@
 from pathlib import Path
-import random
 import os
 import argparse
 import torch
@@ -42,6 +41,8 @@ if __name__ == '__main__':
     parser.add_argument("--grad_accum", type=int, default=2, help="Gradient accumulation steps.")
     parser.add_argument("--tb_name", type=str, default='rvqvae', help='The tensorboard name')
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser.add_argument("--resume_from_checkpoint", type=Path, default=None, help="Path to a checkpoint to resume training from (optional).")
+
     args = parser.parse_args()
 
     # Set the random seed for reproducibility
@@ -56,21 +57,36 @@ if __name__ == '__main__':
         batch_size=args.batch_size,
     )
     data_module.setup('fit')
-
-    # Initialize the LSTUR model
-
-    lstur = LSTUR(
-        cat_vocab_size=args.cat_vocab_size,
-        subcat_vocab_size=args.subcat_vocab_size,
-        user_id_size=args.user_id_size,
-        embedding_size=args.embedding_size,
-        user_hidden_size=args.user_hidden_size,
-        final_hidden_size=args.final_hidden_size,
-        window_size=args.window_size,
-        num_negative_samples_k=args.num_negative_samples_k,
-        learning_rate=args.learning_rate,
-        warm_up_epochs=args.warm_up_epochs,
-    )
+    if args.resume_from_checkpoint is not None and not args.resume_from_checkpoint.exists():
+        raise FileNotFoundError(f"Checkpoint file {args.resume_from_checkpoint} does not exist.")
+    # Initialize LSTUR from checkpoint if provided
+    if args.resume_from_checkpoint is not None:
+        lstur = LSTUR.load_from_checkpoint(
+            checkpoint_path=str(args.resume_from_checkpoint),
+            cat_vocab_size=args.cat_vocab_size,
+            subcat_vocab_size=args.subcat_vocab_size,
+            user_id_size=args.user_id_size,
+            embedding_size=args.embedding_size,
+            user_hidden_size=args.user_hidden_size,
+            final_hidden_size=args.final_hidden_size,
+            window_size=args.window_size,
+            num_negative_samples_k=args.num_negative_samples_k,
+            learning_rate=args.learning_rate,
+            warm_up_epochs=args.warm_up_epochs,
+        )
+    else:
+        lstur = LSTUR(
+            cat_vocab_size=args.cat_vocab_size,
+            subcat_vocab_size=args.subcat_vocab_size,
+            user_id_size=args.user_id_size,
+            embedding_size=args.embedding_size,
+            user_hidden_size=args.user_hidden_size,
+            final_hidden_size=args.final_hidden_size,
+            window_size=args.window_size,
+            num_negative_samples_k=args.num_negative_samples_k,
+            learning_rate=args.learning_rate,
+            warm_up_epochs=args.warm_up_epochs,
+        )
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.checkpoint_path,  # Directory to save checkpoints
@@ -97,4 +113,4 @@ if __name__ == '__main__':
     )
 
     # Train the model
-    trainer.fit(lstur,  train_dataloaders=data_module.train_dataloader(), val_dataloaders=data_module.val_dataloader())
+    trainer.fit(lstur, train_dataloaders=data_module.train_dataloader(), val_dataloaders=data_module.val_dataloader())
