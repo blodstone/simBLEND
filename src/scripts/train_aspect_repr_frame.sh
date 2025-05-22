@@ -7,13 +7,13 @@ DEV_DATA_PATH=$DATASET_DIR/mind/MINDlarge_MFC_dev
 CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
 
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=5e-5
+LEARNING_RATE=5e-4
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
 BATCH_SIZE=24
 GRAD_ACCUM=2
-MAX_EPOCHS=10
+MAX_EPOCHS=25
 DEVICES=1
 GPU_IDS=0 # Comma-separated list of GPU IDs
 TB_NAME="aspect_frame"

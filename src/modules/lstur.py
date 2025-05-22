@@ -315,7 +315,7 @@ class LSTUR(L.LightningModule):
             valid_topk_indices = [idx for idx in user_ranked_indices if user_mask[idx]]
             if len(valid_topk_indices) < 2:
                 continue  # Need at least 2 items for diversity
-            topk_item_embs = candidate_encodings[i][valid_topk_indices]  # (topk, enc_dim)
+            topk_item_embs = candidate_encodings[i, valid_topk_indices]  # (topk, enc_dim)
             # Normalize embeddings for cosine similarity
             topk_item_embs = F.normalize(topk_item_embs, dim=1)
             # Compute pairwise cosine similarities

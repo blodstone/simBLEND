@@ -5,6 +5,7 @@ import lightning as L
 
 from pytorch_lightning.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
 from modules.aspect_enc import AspectRepr
 from data_modules.mind_aspect_data import MINDAspectDataModule
@@ -51,6 +52,8 @@ if __name__ == '__main__':
     )
     logger = TensorBoardLogger("tb_logs", name=args.tb_name)
 
+    early_stopping = EarlyStopping(monitor="val_loss", mode="min")
+    
     # Add the checkpoint callback to the trainer
     trainer = L.Trainer(
         logger=logger,
@@ -61,7 +64,7 @@ if __name__ == '__main__':
         log_every_n_steps=10,  # Log every 10 steps
         enable_checkpointing=True,  # Enable model checkpointing
         accumulate_grad_batches=args.grad_accum,
-        callbacks=[checkpoint_callback]  # Add the checkpoint callback
+        callbacks=[checkpoint_callback, early_stopping]  # Add the checkpoint callback
     )
 
     trainer.fit(model=AspectRepr(), datamodule=mind)
