@@ -1,4 +1,5 @@
 
+import os
 from pathlib import Path
 import argparse
 import torch
@@ -42,7 +43,7 @@ def process_dataloader(logger, device, model, dataloader, output_file):
         with torch.no_grad():
             # Forward pass to get embeddings
             try:
-                representation = model.forward(batch)
+                representation, _ = model.forward(batch)
                 save_dataset[nid[0]] = representation.cpu().numpy()
             except Exception as e:
                 logger.error(f"Error processing batch: {e}")
@@ -55,26 +56,39 @@ def process_dataloader(logger, device, model, dataloader, output_file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Save aspect representation vectors.")
-    parser.add_argument("--model_path", type=str, required=True, help="Path to the aspect representation model checkpoint.")
+    parser.add_argument("--plm_name", type=str, default="answerdotai/ModernBERT-large", help="Name of the pre-trained language model.")
+    parser.add_argument("--model_path", type=str, default="", required=False, help="Path to the aspect representation model checkpoint.")
     parser.add_argument("--output_folder", type=str, required=True, help="Folder to save the output vector files.")
     parser.add_argument('--output_name', type=str, required=True, help='Name of the output file.')
     parser.add_argument("--train_path", type=str, required=True, help="Path to the training dataset.")
     parser.add_argument("--dev_path", type=str, required=True, help="Path to the development dataset.")
     parser.add_argument("--test_path", type=str, required=True, help="Path to the test dataset.")
-    args = parser.parse_args()
+    parser.add_argument("--gpu_ids", type=str, default='0', help="GPU_ids to use (e.g. '0' or '0,1'). Passed to CUDA_VISIBLE_DEVICES.")
 
+    parser.add_argument("--selected_aspect", type=str, default='category_class', help="Aspect to be used for training (default: 'category_class').")
+    args = parser.parse_args()
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
     torch.multiprocessing.set_sharing_strategy('file_system')
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
     logger.info("Starting vector saving process...")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = AspectRepr.load_from_checkpoint(args.model_path) 
+    if args.model_path == "":
+        model = AspectRepr.load_from_checkpoint(plm_name=args.plm_name).to(device)  # Load the default pretrained model
+    else:
+        model = AspectRepr.load_from_checkpoint(args.model_path) 
     MIND_dev_path = Path(args.dev_path)
     MIND_train_path = Path(args.train_path)
     MIND_test_path = Path(args.test_path)
-    mind = MINDAspectDataModule(train_path=MIND_train_path, dev_path=MIND_dev_path, test_path=MIND_test_path, batch_size=1)
+    mind = MINDAspectDataModule(
+        train_path=MIND_train_path, 
+        dev_path=MIND_dev_path, 
+        test_path=MIND_test_path, 
+        batch_size=1, # have to processing one by one
+        selected_aspect=args.selected_aspect,  
+    )
     mind.setup("fit") 
-    process_dataloader(logger, device, model, mind.train_dataloader(shuffle=False, num_workers=1), f'train_{args.output_name}_aspect_vectors.txt')
+    process_dataloader(logger, device, model, mind.train_dataloader(shuffle=False), f'train_{args.output_name}_aspect_vectors.txt')
     process_dataloader(logger, device, model, mind.val_dataloader(), f'dev_{args.output_name}_aspect_vectors.txt')
     mind.setup("test") 
     process_dataloader(logger, device, model, mind.test_dataloader(), f'test_{args.output_name}_aspect_vectors.txt')

@@ -18,9 +18,9 @@ LEARNING_RATE=5e-5
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
-BATCH_SIZE=24
+BATCH_SIZE=64
 GRAD_ACCUM=2
-MAX_EPOCHS=10
+MAX_EPOCHS=20
 DEVICES=1
 GPU_IDS=4 # Comma-separated list of GPU IDs
 TB_NAME="seqvqvae4"

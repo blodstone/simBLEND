@@ -26,7 +26,35 @@ def append_history(df_behaviors):
     return df_behaviors
 
 
-def load_history_data(path: Path, split: str, news: pd.DataFrame, fix_history: bool = False):
+def load_history_data(  
+        path: Path, 
+        split: str, 
+        news: pd.DataFrame, 
+        fix_history: bool = False,
+        max_length: int = 50
+        ):
+    
+    """
+    Loads and processes user behavior history data for news recommendation tasks.
+    This function reads user behavior logs, maps news IDs to their corresponding categories and subcategories,
+    processes user history and candidate impressions, and encodes user IDs for model training or evaluation.
+    It requires that category and subcategory index files, as well as a news DataFrame, are available.
+    Args:
+        path (Path): Path to the directory containing the 'behaviors.tsv' file and category/subcategory index files.
+        split (str): Dataset split, one of {'train', 'dev', 'test'}. Determines user ID encoding behavior.
+        news (pd.DataFrame): DataFrame containing news information, must include 'nid' and 'text' columns.
+        fix_history (bool, optional): Whether to append history using the `append_history` function. Defaults to False.
+        max_length (int, optional): Maximum length of history to retain for each user. Defaults to 50.
+    Returns:
+        pd.DataFrame: Processed behaviors DataFrame with additional columns for history, categories, subcategories,
+                        candidate news, labels, and user ID classes.
+    Raises:
+        ValueError: If required category or subcategory index files are not found, or if an invalid split is provided.
+    Notes:
+        - The function expects that `load_news` has been called beforehand to generate the necessary index files.
+        - User history and candidate lists are truncated to the last 50 items.
+        - User IDs are mapped to integer indices for training and evaluation consistency.
+    """
     # Checking if cat and subcat have been processed before. load_history_data should be called after load_news
     if (path.parent / 'news2cat_index.tsv').exists():
         news2cat_index = pd.read_table(path.parent / "news2cat_index.tsv", sep="\t").set_index("nid")["category_class"].to_dict()
@@ -38,14 +66,15 @@ def load_history_data(path: Path, split: str, news: pd.DataFrame, fix_history: b
         raise ValueError("Subcategory index file not found. Call load_news first.")
     df_behaviors = pd.read_csv(path / "behaviors.tsv", header=None, sep='\t')
     df_behaviors.columns = ['impression_id', 'user_id', 'timestamp', 'history', 'impressions']
+    df_behaviors = df_behaviors.fillna("")
     if fix_history:
         df_behaviors = append_history(df_behaviors)
     df_behaviors = df_behaviors[df_behaviors['history'].apply(lambda x: len(x.split()) >= 2)].reset_index(drop=True)
-    df_behaviors['history'] = df_behaviors['history'].apply(lambda x: ' '.join(x.split()[-50:]))
+    df_behaviors['history'] = df_behaviors['history'].apply(lambda x: ' '.join(x.split()[-max_length:]))
     df_behaviors['history_category'] = df_behaviors['history'].apply(lambda x: [news2cat_index.get(i.split('-')[0], 0) for i in x.split()])
     df_behaviors['history_subcategory'] = df_behaviors['history'].apply(lambda x: [news2subcat_index.get(i.split('-')[0], 0) for i in x.split()])
-    df_behaviors['history_category'] = df_behaviors['history_category'].apply(lambda x: x[-50:])
-    df_behaviors['history_subcategory'] = df_behaviors['history_subcategory'].apply(lambda x: x[-50:])
+    df_behaviors['history_category'] = df_behaviors['history_category'].apply(lambda x: x[-max_length:])
+    df_behaviors['history_subcategory'] = df_behaviors['history_subcategory'].apply(lambda x: x[-max_length:])
     df_behaviors['candidates'] = df_behaviors['impressions'].apply(lambda x: [i.split('-')[0] for i in x.split()])
     df_behaviors['candidates_category'] = df_behaviors['candidates'].apply(lambda x: [news2cat_index.get(i, 0) for i in x])
     df_behaviors['candidates_subcategory'] = df_behaviors['candidates'].apply(lambda x: [news2subcat_index.get(i, 0) for i in x])
@@ -70,17 +99,85 @@ def load_history_data(path: Path, split: str, news: pd.DataFrame, fix_history: b
     return df_behaviors
 
 
-def load_news_data_frame(path: Path, split: str):
+def update_candidate_data(path, df_behaviors, news, new_candidates):
+    """
+    Update the candidate news in the behaviors DataFrame with new candidates.
+    This function modifies the 'candidates' and 'candidates_text' columns in the DataFrame
+    to include new candidate news items, while preserving existing history and labels.
+    Args:
+        df_behaviors (pd.DataFrame): The DataFrame containing user behaviors.
+        new_candidates (list): A list of new candidate news IDs to be added.
+    Returns:
+        pd.DataFrame: The updated DataFrame with modified candidates and candidates_text columns.
+    """
+    if (path.parent / 'news2cat_index.tsv').exists():
+        news2cat_index = pd.read_table(path.parent / "news2cat_index.tsv", sep="\t").set_index("nid")["category_class"].to_dict()
+    else:
+        raise ValueError("Category index file not found. Call load_news first.")
+    if (path.parent / 'news2subcat_index.tsv').exists():
+        news2subcat_index = pd.read_table(path.parent / "news2subcat_index.tsv", sep="\t").set_index("nid")["subcategory_class"].to_dict()
+    else:
+        raise ValueError("Subcategory index file not found. Call load_news first.")
+    nid2text = news.set_index('nid')['text'].to_dict()
+    df_behaviors['candidates'] = new_candidates
+    df_behaviors['candidates_category'] = df_behaviors['candidates'].apply(lambda x: [news2cat_index.get(i, 0) for i in x])
+    df_behaviors['candidates_subcategory'] = df_behaviors['candidates'].apply(lambda x: [news2subcat_index.get(i, 0) for i in x])
+    df_behaviors['candidates_text'] = df_behaviors['candidates'].apply(lambda x: [nid2text[i] for i in x]).tolist()
+    return df_behaviors
+
+def load_news_data_frame(path: Path, split: str, selected_aspect: str = 'frame_class'):
+    """
+    Load and preprocess the news data frame from a specified directory.
+    This function reads a 'news.tsv' file from the given path, processes its columns,
+    fills missing values, and generates additional columns for downstream tasks.
+    It also handles the mapping of news frames to indices, saving these mappings to disk
+    for reproducibility across different data splits.
+    Args:
+        path (Path): The directory path containing the 'news.tsv' file and where mapping files will be saved or loaded.
+        split (str): The data split type. Must be one of 'train', 'dev', or 'test'.
+            - 'train': Generates and saves new frame-to-index and news-to-frame mappings.
+            - 'dev' or 'test': Loads existing frame-to-index mapping and applies it.
+    Returns:
+        pd.DataFrame: The processed news DataFrame with additional columns such as 'text' and 'frame_class'.
+    Raises:
+        ValueError: If the provided split is not one of 'train', 'dev', or 'test'.
+    Side Effects:
+        - Saves 'frame2index.tsv' and 'news2frame_index.tsv' to the parent directory of the provided path.
+        - Loads 'frame2index.tsv' for 'dev' and 'test' splits.
+    """
+
+    aspect_maps = {
+        'frame_class': {
+            'file': 'frame2index.tsv',
+            'news_file': 'news2frame_index.tsv',
+            'col': 'frame',
+            'class_col': 'frame_class',
+        },
+        'sentiment_class': {
+            'file': 'sentiment2index.tsv',
+            'news_file': 'news2sentiment_index.tsv',
+            'col': 'sentiment',
+            'class_col': 'sentiment_class',
+        },
+        'political_class': {
+            'file': 'political2index.tsv',
+            'news_file': 'news2political_index.tsv',
+            'col': 'political',
+            'class_col': 'political_class',
+        },
+    }
     columns_names = [
                 "nid",
                 "category",
                 "subcategory",
                 "title",
                 "abstract",
-                "url",
                 "title_entities",
                 "abstract_entities",
-                "frame"
+                "text",
+                "category_class",
+                "subcategory_class",
+                aspect_maps[selected_aspect]['col'],
             ]
     df_news = pd.read_table(
             filepath_or_buffer=path / "news.tsv",
@@ -88,30 +185,32 @@ def load_news_data_frame(path: Path, split: str):
             names=columns_names,
             usecols=range(len(columns_names)),
         )
-    df_news = df_news.drop(columns=["url"])
     df_news["abstract"] = df_news["abstract"].fillna("")
     df_news["title_entities"] = df_news["title_entities"].fillna("[]")
     df_news['text'] = df_news['title'] + ' ' + df_news['abstract']
     df_news["abstract_entities"] = df_news["abstract_entities"].fillna("[]")
+    col_name = aspect_maps[selected_aspect]['col']
+    file_name = aspect_maps[selected_aspect]['file']
+    news2aspect_file = aspect_maps[selected_aspect]['news_file']
     if split == "train":
-        news_frame = df_news["frame"].drop_duplicates().reset_index(drop=True)
-        frame2index = {v: k + 1 for k, v in news_frame.to_dict().items()}
-        news2frame_index = {k: frame2index.get(v, 0) for k, v in df_news[['nid', 'frame']].values.tolist()}
-        pd.DataFrame(frame2index.items(), columns=["word", "index"]).to_csv(path.parent / 'frame2index.tsv', index=False, sep="\t")
-        df_news["frame_class"] = df_news["frame"].apply(
-            lambda frame: frame2index.get(frame, 0)
+        news_aspect = df_news[col_name].drop_duplicates().reset_index(drop=True)
+        aspect2index = {v: k + 1 for k, v in news_aspect.to_dict().items()}
+        news2aspect_index = {k: aspect2index.get(v, 0) for k, v in df_news[['nid', col_name]].values.tolist()}
+        pd.DataFrame(aspect2index.items(), columns=["word", "index"]).to_csv(path.parent / file_name, index=False, sep="\t")
+        df_news[selected_aspect] = df_news[col_name].apply(
+            lambda aspect: aspect2index.get(aspect, 0)
         ).astype(int)
-        pd.DataFrame(news2frame_index.items(), columns=["nid", "frame_class"]).to_csv(path.parent / 'news2frame_index.tsv', index=False, sep="\t")
+        pd.DataFrame(news2aspect_index.items(), columns=["nid", "frame_class"]).to_csv(path.parent / news2aspect_file, index=False, sep="\t")
 
     elif split == "dev" or split == 'test':
-        frame2index = pd.read_table(path.parent / "frame2index.tsv", sep="\t").set_index("word")["index"].to_dict()
-        df_news["frame_class"] = df_news["frame"].apply(
-            lambda frame: frame2index.get(frame, 0)
+        aspect2index = pd.read_table(path.parent / file_name, sep="\t").set_index("word")["index"].to_dict()
+        df_news[selected_aspect] = df_news[col_name].apply(
+            lambda aspect: aspect2index.get(aspect, 0)
         ).astype(int)
-        news2frame_index = {k: frame2index.get(v, 0) for k, v in df_news[['nid', 'frame']].values.tolist()}
-        pd.DataFrame(frame2index.items(), columns=["word", "index"]).to_csv(path.parent / 'frame2index.tsv', index=False, sep="\t")
-        df_news["frame_class"] = df_news["frame"].apply(
-            lambda frame: frame2index.get(frame, 0)
+        news2aspect_index = {k: aspect2index.get(v, 0) for k, v in df_news[['nid', col_name]].values.tolist()}
+        pd.DataFrame(aspect2index.items(), columns=["word", "index"]).to_csv(path.parent / file_name, index=False, sep="\t")
+        df_news[selected_aspect] = df_news[col_name].apply(
+            lambda aspect: aspect2index.get(aspect, 0)
         ).astype(int)
     else:
         raise ValueError(f"Invalid split: {split}")

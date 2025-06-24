@@ -5,24 +5,27 @@ source ./secrets.sh
 TRAIN_DATA_PATH=$DATASET_DIR/mind/MINDlarge_MFC_train
 DEV_DATA_PATH=$DATASET_DIR/mind/MINDlarge_MFC_dev
 CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
+NUM_WORKERS=12
+PROJECTION_SIZE=128
 
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=5e-4
+LEARNING_RATE=1e-5
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
-BATCH_SIZE=24
-GRAD_ACCUM=2
-MAX_EPOCHS=25
+BATCH_SIZE=4
+GRAD_ACCUM=1
+MAX_EPOCHS=20
 DEVICES=1
-GPU_IDS=0 # Comma-separated list of GPU IDs
+GPU_IDS=4 # Comma-separated list of GPU IDs
 TB_NAME="aspect_frame"
-SEED=42
+SEED=55
 
 
 uv run python ../train_aspect_repr.py \
     --train_path "$TRAIN_DATA_PATH" \
     --dev_path "$DEV_DATA_PATH" \
+    --projection_size $PROJECTION_SIZE \
     --selected_aspect "frame_class" \
     --checkpoint_path "$CHECKPOINT_DIR" \
     --learning_rate $LEARNING_RATE \
@@ -33,4 +36,6 @@ uv run python ../train_aspect_repr.py \
     --devices $DEVICES \
     --gpu_ids "$GPU_IDS" \
     --tb_name "$TB_NAME" \
-    --seed $SEED 
+    --seed $SEED \
+    --num_workers $NUM_WORKERS \
+    

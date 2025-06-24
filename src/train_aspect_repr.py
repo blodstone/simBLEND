@@ -18,8 +18,11 @@ if __name__ == '__main__':
     os.environ['HF_HOME'] = './cache/'
     torch.set_float32_matmul_precision('medium')
     parser = ArgumentParser(description='Train aspect representation')
+    parser.add_argument("--plm_name", type=str, default="answerdotai/ModernBERT-large", help="Name of the pre-trained language model.")
     parser.add_argument("--train_path", type=Path, required=True, help="Path to the training data.")
     parser.add_argument("--dev_path", type=Path, required=True, help="Path to the development/validation data.")
+    parser.add_argument("--projection_size", type=int, default=128, help="Size of the projection head output.")
+    parser.add_argument("--num_workers", type=int, default=8, help="Number of workers for data loading.")
     parser.add_argument("--selected_aspect", type=str, required=True, help="Aspect to train on.")
     parser.add_argument("--checkpoint_path", type=Path, required=True, help="Path to save the model checkpoints.")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training.")
@@ -38,15 +41,15 @@ if __name__ == '__main__':
         train_path=Path(args.train_path), 
         dev_path=Path(args.dev_path), 
         batch_size=args.batch_size,
-        selected_aspect=args.selected_aspect
+        selected_aspect=args.selected_aspect,
+        num_workers=args.num_workers
     )
 
-    # TODO: generalise to different checking-point save path
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.checkpoint_path,  # Directory to save checkpoints
         filename=args.tb_name+ "-{epoch:02d}-{val_loss:.4f}",  # Filename format
-        save_top_k=10,  # Save all checkpoints
-        save_last=True,  # Save the last checkpoint
+        save_top_k=5,  # Save all checkpoints
+        save_last=False,  # Save the last checkpoint
         monitor="val_loss",  # Monitor training loss
         mode="min",  # Save the checkpoint with the minimum loss
     )
@@ -67,4 +70,7 @@ if __name__ == '__main__':
         callbacks=[checkpoint_callback, early_stopping]  # Add the checkpoint callback
     )
 
-    trainer.fit(model=AspectRepr(), datamodule=mind)
+    trainer.fit(model=AspectRepr(
+        plm_name=args.plm_name,
+        projection_size=args.projection_size
+        ), datamodule=mind)

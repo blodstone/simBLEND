@@ -7,7 +7,8 @@ import torch.nn as nn
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch.nn.functional as F
-from transformers.models.llama import LlamaConfig, LlamaModel, LlamaForCausalLM
+from lightning.pytorch.callbacks.early_stopping import EarlyStopping
+
 from pytorch_lightning.loggers import TensorBoardLogger
 from modules.llama_decoder import LlamaDecoderForNextArticle
 from data_modules.indices_data import SeqVQVAEDataModule
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     parser.add_argument("--num_hidden_layers", type=int, default=8, help="Number of hidden layers for the Llama model.")
     parser.add_argument("--num_attention_heads", type=int, default=8, help="Number of attention heads for the Llama model.")
     parser.add_argument("--max_position_embeddings", type=int, default=4096, help="Maximum position embeddings for the Llama model.")
+    parser.add_argument("--overlap_size", type=int, default=50, help="Overlap size for the sequences.")
     parser.add_argument("--train_path", type=str, required=True, help="Path to the training dataset.")
     parser.add_argument("--dev_path", type=str, required=True, help="Path to the development dataset.")
     parser.add_argument('--checkpoint_path', type=str, required=True, help='Path to the checkpoint file.')
@@ -57,7 +59,8 @@ if __name__ == '__main__':
         dev_file=Path(args.dev_path),
         test_file=None,
         batch_size=args.batch_size,
-        max_len=args.max_position_embeddings
+        max_len=args.max_position_embeddings,
+        overlap=args.overlap_size
     )
     seqvqvae_data_module.setup('fit')
 
@@ -71,6 +74,7 @@ if __name__ == '__main__':
     )
 
     logger = TensorBoardLogger("tb_logs", name=args.tb_name)
+    early_stopping = EarlyStopping(monitor="val_loss", mode="min")
 
     # Initialize the PyTorch Lightning Trainer
     trainer = L.Trainer( 
@@ -82,7 +86,8 @@ if __name__ == '__main__':
         log_every_n_steps=10,  # Log every 10 steps
         enable_checkpointing=True,  # Enable model checkpointing
         accumulate_grad_batches=args.grad_accum,
-        callbacks=[checkpoint_callback],  # Add the checkpoint callback
+        gradient_clip_val= 1.0,  # Gradient clipping value
+        callbacks=[checkpoint_callback, early_stopping],  # Add the checkpoint callback
     )
 
     # Train the model

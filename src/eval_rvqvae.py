@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument("--test_path", type=str, required=True, help="Path to the training dataset.")
     parser.add_argument('--checkpoint_path', type=str, required=True, help='Path to the checkpoint file.')
     parser.add_argument("--codebook_dim", type=int, default=384, help="Dimensionality of the latent space.")
-    parser.add_argument("--codebook_size", type=int, default=512, help="Number of embeddings.")
+    parser.add_argument("--codebook_sizes", type=int, nargs='+', default=[512], help="List of codebook sizes for each quantizer.")
     parser.add_argument("--num_quantizers", type=int, default=3, help="Number of quantizers.")
     parser.add_argument('--input_size', type=int, default=1024, help="Size of the input vector.")
     parser.add_argument("--batch_size", type=int, default=24, help="Batch size for training.")
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # Define the VAE
     rvqvae = RVQVAE.load_from_checkpoint(args.checkpoint_path, 
                     codebook_dim=args.codebook_dim, 
-                    codebook_size=args.codebook_size,
+                    codebook_sizes=args.codebook_sizes,
                     num_quantizers=args.num_quantizers,
                     encoder_hidden_size=args.hidden_size,
                     decoder_hidden_size=args.hidden_size,

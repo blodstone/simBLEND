@@ -3,8 +3,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
-
+import numpy as np
 import lightning as L
+from sklearn.cluster import KMeans, kmeans_plusplus
 
 # Define the Residual Vector Quantizer module
 class ResidualVectorQuantizer(nn.Module):
@@ -12,7 +13,7 @@ class ResidualVectorQuantizer(nn.Module):
     Applies multiple Vector Quantizer layers sequentially.
     The input to the next quantizer is the residual (input - quantized) of the previous one.
     """
-    def __init__(self, num_quantizers, codebook_size, codebook_dim, commitment_cost=0.25,
+    def __init__(self, num_quantizers, codebook_sizes, codebook_dim, commitment_cost=0.25,
                  reset_threshold=0.01, decay=0.99, epsilon=1e-5):
         """
         Initializes the ResidualVectorQuantizer.
@@ -32,14 +33,14 @@ class ResidualVectorQuantizer(nn.Module):
         # Create a list of individual VectorQuantizer modules
         self.quantizers = nn.ModuleList([
             VectorQuantizer(
-                codebook_size=codebook_size,        # Scalar (C)
+                codebook_size=codebook_sizes[i],        # Scalar (C)
                 codebook_dim=codebook_dim,          # Scalar (D)
                 commitment_cost=commitment_cost,    # Scalar
                 reset_threshold=reset_threshold,    # Scalar
                 decay=decay,                        # Scalar
                 epsilon=epsilon                     # Scalar
             )
-            for _ in range(num_quantizers) # Repeat num_quantizers times
+            for i in range(num_quantizers) # Repeat num_quantizers times
         ])
 
     def forward(self, inputs):
@@ -88,8 +89,9 @@ class VectorQuantizer(nn.Module):
     """
     Core Vector Quantization layer using a codebook and EMA updates.
     """
-    def __init__(self, codebook_size, codebook_dim, commitment_cost=0.15,
-                 reset_threshold=0.01, decay=0.99, epsilon=1e-5):
+    def __init__(self, codebook_size, codebook_dim, commitment_cost=0.15, reset_threshold=0.01, 
+                 decay=0.99, 
+                 epsilon=1e-5):
         """
         Initializes the VectorQuantizer.
 
@@ -108,12 +110,24 @@ class VectorQuantizer(nn.Module):
         self.reset_threshold = reset_threshold   # Scalar
         self.decay = decay                       # Scalar
         self.epsilon = epsilon                   # Scalar
-
+        
         # Initialize the codebook as an Embedding layer
         # Stores C vectors, each of dimension D
+
         self.codebook = nn.Embedding(codebook_size, codebook_dim)
-        # Initialize codebook weights with normal distribution
-        self.codebook.weight.data.normal_() # Shape: (C, D)
+        # Initialize codebook with kmeans++
+
+        with torch.no_grad():
+            initial_centroids, _ = kmeans_plusplus(n_clusters=self.codebook_size, X=torch.rand(10000, codebook_dim).numpy(), random_state=42)
+            self.codebook.weight.data.copy_(torch.tensor(initial_centroids, dtype=torch.float, device=self.codebook.weight.device)) # Shape: (C, D)
+        # loaded_centers = np.loadtxt('/home/users1/hardy/hardy/project/vae/outputs/mind/kmeans_std_cluster_centers.txt')
+        # self.codebook.weight.data.copy_(torch.tensor(loaded_centers, dtype=self.codebook.weight.dtype, device=self.codebook.weight.device)) # Shape: (C, D)
+        
+        # for param in self.codebook.parameters():
+        #     param.requires_grad = False
+        
+        # nn.init.uniform_(self.codebook.weight, a=-1.0, b=1.0)
+        # self.codebook.weight.data.normal_() # Shape: (C, D)
 
         # Initialize buffers for Exponential Moving Average (EMA) updates
         # These are not model parameters but are saved with the state_dict
@@ -121,6 +135,8 @@ class VectorQuantizer(nn.Module):
         self.register_buffer('_ema_cluster_size', torch.zeros(codebook_size)) # Shape: (C,)
         # EMA for the codebook weights themselves
         self.register_buffer('_ema_w', self.codebook.weight.clone()) # Shape: (C, D)
+
+   
 
     def forward(self, inputs):
         """
@@ -134,24 +150,27 @@ class VectorQuantizer(nn.Module):
             loss (torch.Tensor): Combined VQ loss (Quantizer Loss + Commitment Loss). Shape: scalar
             indices (torch.Tensor): Indices of the chosen codebook vectors for each input vector. Shape: (N, 1), where N = B * ...
         """
+        # import pdb;pdb.set_trace()
         # Preserve original input shape
         input_shape = inputs.shape # e.g., (B, ..., D)
         # Flatten the input tensor to treat each vector independently
         # Reshapes (B, ..., D) -> (N, D), where N = B * ...
         flat_inputs = inputs.view(-1, self.codebook_dim) # Shape: (N, D)
-
+        # Calculate L2 distances (squared differences)
+        # Shape: (N, 1, D) - (1, C, D) -> (N, C)
+        distances = torch.sum((flat_inputs.unsqueeze(1) - self.codebook.weight.unsqueeze(0)) ** 2, dim=2)
         # Normalize input vectors and codebook vectors for cosine distance calculation
-        flat_inputs_norm = F.normalize(flat_inputs, p=2, dim=1)       # Shape: (N, D)
-        embedding_norm = F.normalize(self.codebook.weight, p=2, dim=1) # Shape: (C, D)
+        # flat_inputs_norm = F.normalize(flat_inputs, p=2, dim=1)       # Shape: (N, D)
+        # embedding_norm = F.normalize(self.codebook.weight, p=2, dim=1) # Shape: (C, D)
 
         # Calculate cosine distances (1 - cosine similarity)
         # Matmul: (N, D) x (D, C) -> (N, C)
-        distances = 1 - torch.matmul(flat_inputs_norm, embedding_norm.t()) # Shape: (N, C)
+        # distances = 1 - torch.matmul(flat_inputs_norm, embedding_norm.t()) # Shape: (N, C)
 
         # Find the closest codebook vector for each input vector
         # Find the index of the minimum distance along the codebook dimension (dim=1)
         indices = torch.argmin(distances, dim=1).unsqueeze(1) # Shape: (N,) -> (N, 1)
-
+    
         # Retrieve the quantized vectors corresponding to the indices
         # indices shape (N, 1) -> lookup -> (N, 1, D) - embedding handles this
         quantized = self.codebook(indices.squeeze(1)) # Shape: (N, D)
@@ -181,10 +200,11 @@ class VectorQuantizer(nn.Module):
         # Reset unused embeddings if EMA is not used (decay == 0)
         # Note: The original code has a bug here, reset_codebook checks decay > 0 and returns.
         # It should likely check decay == 0 for the reset logic. Assuming original logic for commenting.
-        self.reset_codebook(flat_inputs, indices) # flat_inputs: (N, D), indices: (N, 1)
+        # self.reset_codebook(flat_inputs, indices) # flat_inputs: (N, D), indices: (N, 1)
 
         # Return the straight-through quantized vector, the loss, and the indices
         return quantized_st, loss, indices
+
 
     def _update_ema(self, indices, flat_inputs):
         """
@@ -245,6 +265,7 @@ class VectorQuantizer(nn.Module):
         usage_counts = torch.bincount(indices.view(-1), minlength=self.codebook_size) # Shape: (C,)
         # Find indices of codebook vectors used less than the threshold
         # Threshold is calculated relative to the number of input vectors N
+
         unused_embeddings = torch.where(usage_counts < self.reset_threshold * flat_inputs.size(0))[0] # Shape: (num_unused,)
 
         # If there are unused embeddings, reset them
@@ -266,8 +287,9 @@ class RVQVAE(L.LightningModule):
     """
     def __init__(self,
                  codebook_dim=512,
-                 codebook_size=256,
-                 learning_rate=1e-3,
+                 codebook_sizes=[],
+                 learning_rate=1e-4,
+                 warm_up_epochs=1,
                  num_quantizers=3,
                  commitment_cost=0.25,
                  reset_threshold=0.01,
@@ -275,13 +297,14 @@ class RVQVAE(L.LightningModule):
                  epsilon=1e-5,
                  encoder_hidden_size=512,
                  decoder_hidden_size=512,
-                 input_size=1024):
+                 input_size=1024,
+                 ):
         """
         Initializes the RVQVAE model.
 
         Args:
             codebook_dim (int): Dimensionality of the VQ codebook and the encoder output/decoder input. (D)
-            codebook_size (int): Number of vectors in each VQ codebook. (C)
+            codebook_sizes (list[int]): Number of vectors in each VQ codebook. (C)
             learning_rate (float): Learning rate for the Adam optimizer.
             num_quantizers (int): Number of residual quantizers.
             commitment_cost (float): Commitment cost for VQ layers.
@@ -296,7 +319,7 @@ class RVQVAE(L.LightningModule):
         super().__init__()
         # Store configuration parameters
         self.codebook_dim = codebook_dim             # Scalar (D)
-        self.codebook_size = codebook_size           # Scalar (C)
+        self.codebook_sizes = codebook_sizes         # List (C)
         self.learning_rate = learning_rate           # Scalar
         self.num_quantizers = num_quantizers         # Scalar
         self.commitment_cost = commitment_cost       # Scalar
@@ -306,7 +329,8 @@ class RVQVAE(L.LightningModule):
         self.encoder_hidden_size = encoder_hidden_size # Scalar
         self.decoder_hidden_size = decoder_hidden_size # Scalar
         self.input_size = input_size                 # Scalar (I)
-
+        self.warm_up_epochs = warm_up_epochs
+        self.bn = nn.BatchNorm1d(codebook_dim)
         # Define the Encoder network
         # Maps original input (I) to the latent dimension (D)
         self.encoder = nn.Sequential(
@@ -318,7 +342,7 @@ class RVQVAE(L.LightningModule):
         # Define the Residual Vector Quantizer layer
         self.rvq_layer = ResidualVectorQuantizer(
             num_quantizers=self.num_quantizers,     # Scalar
-            codebook_size=codebook_size,            # Scalar (C)
+            codebook_sizes=self.codebook_sizes,     # List (C)
             codebook_dim=codebook_dim,              # Scalar (D)
             commitment_cost=self.commitment_cost,   # Scalar
             reset_threshold=self.reset_threshold,   # Scalar
@@ -337,12 +361,46 @@ class RVQVAE(L.LightningModule):
         # Define the loss function
         # Cosine Embedding Loss compares the similarity between two sets of vectors
         # It requires a target tensor indicating whether pairs should be similar (1) or dissimilar (-1)
-        self.loss_fn = nn.CosineEmbeddingLoss(reduction="mean")
+        # self.loss_fn = nn.CosineEmbeddingLoss(reduction="mean")
         # Alternative: MSE Loss
-        # self.loss_fn = nn.MSELoss(reduction="sum")
+        self.loss_fn = nn.MSELoss(reduction="mean")
 
         # Save hyperparameters for logging and checkpointing
         self.save_hyperparameters()
+
+    def reset_code_usage(self):
+        """
+        Resets the global code usage counters for each quantizer.
+        This is useful for starting fresh at the beginning of training or testing.
+        """
+        self.global_code_usage = [
+            torch.zeros(q.codebook_size, device=self.device)
+            for q in self.rvq_layer.quantizers
+        ]
+
+    def on_train_start(self):
+        # Initialize global usage counters for each quantizer
+        self.reset_code_usage()
+    
+    def on_train_epoch_end(self):
+        """
+        Called at the end of each training epoch.
+        Logs codebook usage statistics (EMA size histogram, sparsity, perplexity).
+        """
+        # Log codebook usage statistics at the end of each training epoch
+        self.reset_code_usage()
+
+    def on_test_start(self):
+        # Initialize global usage counters for each quantizer
+        self.reset_code_usage()
+
+    def accumulate_code_usage(self, indices_list):
+        # indices_list: list of tensors, each (N, 1)
+        for i, indices in enumerate(indices_list):
+            # Flatten and count occurrences
+            idx = indices.view(-1)
+            counts = torch.bincount(idx, minlength=self.rvq_layer.quantizers[i].codebook_size)
+            self.global_code_usage[i] += counts.to(self.global_code_usage[i].device)
 
     def forward(self, batch):
         """
@@ -360,7 +418,8 @@ class RVQVAE(L.LightningModule):
         # Pass the encoded input through the Residual Vector Quantizer
         # quantized: (B, D), vq_loss: scalar, indices_list: list of num_quantizers tensors, each (B, 1)
         encoded = self.encoder(batch) # Shape: (B, D)
-        quantized, vq_loss, indices_list = self.rvq_layer(encoded)
+        norm_encoded = self.bn(encoded)
+        quantized, vq_loss, indices_list = self.rvq_layer(norm_encoded)
         # Pass the quantized vector through the Decoder
         recon_x = self.decoder(quantized) # Shape: (B, I)
         return recon_x, vq_loss, indices_list
@@ -384,16 +443,17 @@ class RVQVAE(L.LightningModule):
             dict: Dictionary containing total loss, reconstruction loss, and VQ loss (all scalars).
         """
         # Target tensor for CosineEmbeddingLoss, indicating pairs should be similar (1)
-        target = torch.ones(base_output.size(0), device=base_output.device) # Shape: (B,)
+        # target = torch.ones(base_output.size(0), device=base_output.device) # Shape: (B,)
 
         # Normalize vectors before calculating cosine similarity/loss
-        recon_x_norm = F.normalize(recon_x, dim=-1)           # Shape: (B, I)
-        base_output_norm = F.normalize(base_output, dim=-1) # Shape: (B, D)
+        # recon_x_norm = F.normalize(recon_x, dim=-1)           # Shape: (B, I)
+        # base_output_norm = F.normalize(base_output, dim=-1) # Shape: (B, D)
 
         # Calculate reconstruction loss using Cosine Embedding Loss
         # Compares recon_x_norm (B, I) and base_output_norm (B, D)
         # This calculation requires I == D to be meaningful dimensionally for comparing vector content.
-        recon_loss = self.loss_fn(recon_x_norm, base_output_norm, target) # Shape: scalar
+        
+        recon_loss = self.loss_fn(recon_x, base_output) # Shape: scalar
 
         # Combine reconstruction loss and weighted VQ loss
         total_loss = recon_loss + vq_loss # Shape: scalar
@@ -403,7 +463,7 @@ class RVQVAE(L.LightningModule):
             "vq_loss": vq_loss,
         }
 
-    def log_codebook_usage(self):
+    def log_codebook_usage(self, on_step=False):
             """Logs codebook usage statistics (EMA size histogram, sparsity, perplexity) using the logger."""
             # Check if a logger is configured and supports histogram logging
             if self.logger and hasattr(self.logger.experiment, 'add_histogram'):
@@ -411,18 +471,19 @@ class RVQVAE(L.LightningModule):
                 for i, quantizer in enumerate(self.rvq_layer.quantizers):
                     # Log histogram of EMA cluster sizes (code usage frequency)
                     # Retrieve EMA cluster size buffer, move to CPU, convert to numpy
-                    ema_cluster_size = quantizer._ema_cluster_size.cpu().numpy() # Shape: (C,)
+                    ema_cluster_size = quantizer._ema_cluster_size.cpu().numpy()
+                    # Shape: (C,)
                     self.logger.experiment.add_histogram(
                         f"quantizer_{i}/ema_cluster_size", # Log tag
                         ema_cluster_size,                  # Data (numpy array)
                         self.global_step                   # Current global step
                     )
-                    for j, size in enumerate(ema_cluster_size):
-                        self.logger.experiment.add_scalar(
-                            f"quantizer_{i}/cluster_{j}_size", # Unique tag for each cluster
-                            size,
-                            self.global_step
-                        )
+                    # for j, size in enumerate(ema_cluster_size):
+                    #     self.logger.experiment.add_scalar(
+                    #         f"quantizer_{i}/cluster_{j}_size", # Unique tag for each cluster
+                    #         size,
+                    #         self.global_step
+                    #     )
 
                     # Calculate and log sparsity (percentage of codes with near-zero EMA usage)
                     threshold = 1e-5 # Define a small threshold for considering a code "unused"
@@ -431,17 +492,36 @@ class RVQVAE(L.LightningModule):
                     # Calculate sparsity ratio
                     sparsity = unused_codes / quantizer.codebook_size # Shape: scalar
                     # Log sparsity (on epoch end)
-                    self.log(f"quantizer_{i}/codebook_sparsity", sparsity, on_step=False, on_epoch=True, logger=True, sync_dist=True)
+                    self.log(f"quantizer_{i}/codebook_sparsity", sparsity, on_step=on_step, on_epoch=True, logger=True, sync_dist=True)
 
                     # Calculate and log perplexity (measure of codebook usage uniformity)
-                    # Lower perplexity is generally better, indicating more codes are used effectively
+                    # Higher perplexity is generally better, indicating more codes are used effectively
                     # Calculate probabilities from EMA cluster sizes
                     probs = quantizer._ema_cluster_size / quantizer._ema_cluster_size.sum() # Shape: (C,)
                     # Calculate perplexity: exp(-sum(p * log(p)))
                     # Add epsilon for numerical stability (log(0))
                     perplexity = torch.exp(-torch.sum(probs * torch.log(probs + 1e-10))) # Shape: scalar
                     # Log perplexity (on epoch end)
-                    self.log(f"quantizer_{i}/codebook_perplexity", perplexity, on_step=False, on_epoch=True, logger=True, sync_dist=True)
+                    self.log(f"quantizer_{i}/codebook_perplexity", perplexity, on_step=on_step, on_epoch=True, logger=True, sync_dist=True)
+
+    def compute_global_perplexity_sparsity(self):
+        
+        perplexities = []
+        sparsities = []
+        for usage in self.global_code_usage:
+            total = usage.sum()
+            if total > 0:
+                probs = usage / total
+                perplexity = torch.exp(-torch.sum(probs * torch.log(probs + 1e-10)))
+                perplexities.append(perplexity.item())
+            else:
+                perplexities.append(0.0)
+
+            # Compute sparsity
+            sparsity = (usage < 1e-5).float().mean().item()
+            sparsities.append(sparsity)
+
+        return perplexities, sparsities
 
     def training_step(self, batch, batch_idx):
         """
@@ -456,16 +536,29 @@ class RVQVAE(L.LightningModule):
         """
         # Forward pass: Get reconstruction, VQ loss, and indices from the encoded batch
         # recon_x: (B, I), vq_loss: scalar, indices_list: list[(B, 1)]
-        recon_x, vq_loss, _ = self.forward(batch)
+        recon_x, vq_loss, indices_list = self.forward(batch)
+        self.accumulate_code_usage(indices_list)
+
+        perplexities, sparsities = self.compute_global_perplexity_sparsity()
+        for i, perp in enumerate(perplexities):
+            self.log(f"quantizer_{i}/global_perplexity", perp, 
+                     on_step=True, on_epoch=True, logger=True, sync_dist=True)
+        average_sparsity = float(np.mean(sparsities))
+        self.log("global_sparsity", average_sparsity,
+                 on_step=True, on_epoch=True, logger=True, sync_dist=True)
+        for i, spars in enumerate(sparsities):
+            self.log(f"quantizer_{i}/global_sparsity", spars,
+                     on_step=True, on_epoch=True, logger=True, sync_dist=True)
         # Compute loss by comparing reconstruction `recon_x` (B, I) with the input `batch` (B, D)
         # See note in `compute_loss` about this comparison.
         loss_dict = self.compute_loss(batch, recon_x, vq_loss) # loss_dict contains scalar losses
 
         # Log training losses
         self.log("train_loss", loss_dict['loss'], on_step=True, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
-        self.log("train_recon_loss", loss_dict['recon_loss'], on_step=True, on_epoch=True, prog_bar=False, logger=True, sync_dist=True) # Renamed for clarity
-        self.log("train_vq_loss", loss_dict['vq_loss'], on_step=True, on_epoch=True, prog_bar=False, logger=True, sync_dist=True)    # Renamed for clarity
-
+        self.log("train_recon_loss", loss_dict['recon_loss'], on_step=True, on_epoch=True, prog_bar=False, logger=True, sync_dist=True) 
+        self.log("train_vq_loss", loss_dict['vq_loss'], on_step=True, on_epoch=True, prog_bar=False, logger=True, sync_dist=True)  
+        
+        # self.log_codebook_usage(on_step=True) # Log codebook usage statistics on each training step
         # Return the loss dictionary required by PyTorch Lightning
         return loss_dict
 
@@ -485,12 +578,12 @@ class RVQVAE(L.LightningModule):
         recon_x, vq_loss, _ = self.forward(batch)
         # Compute loss by comparing reconstruction `recon_x` (B, I) with the input `batch` (B, D)
         loss_dict = self.compute_loss(batch, recon_x, vq_loss) # loss_dict contains scalar losses
-
+        
         # Log validation losses (on epoch end)
         self.log("val_loss", loss_dict['loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         self.log("val_recon_loss", loss_dict['recon_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         self.log("val_vq_loss", loss_dict['vq_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
-
+        # self.log_codebook_usage()
         # Log codebook usage periodically during validation (e.g., every 100 global steps)
         # Note: Logging based on global_step in validation_step might be infrequent if val runs less often than training.
         # Consider moving this to on_validation_epoch_end if epoch-level logging is sufficient.
@@ -502,18 +595,33 @@ class RVQVAE(L.LightningModule):
         return loss_dict
 
     def test_step(self, batch, batch_idx):
-        recon_x, vq_loss, _ = self.forward(batch)
+        recon_x, vq_loss, indices_list = self.forward(batch)
+        self.accumulate_code_usage(indices_list)
+
+        base_output_norm = F.normalize(batch, dim=-1)
+        recon_x_norm = F.normalize(recon_x, dim=-1)
+        cosine_similarities = F.cosine_similarity(base_output_norm, recon_x_norm, dim=1)
+        average_cosine_similarity = torch.mean(cosine_similarities)
+        self.log("test_cosine_similarity", average_cosine_similarity,
+             on_step=False, on_epoch=True, logger=True, sync_dist=True)
         loss_dict = self.compute_loss(batch, recon_x, vq_loss) 
+        loss_dict['cosine_similarity'] = average_cosine_similarity.item()
         self.log("val_loss", loss_dict['loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         self.log("val_recon_loss", loss_dict['recon_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         self.log("val_vq_loss", loss_dict['vq_loss'], on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        _, sparsities = self.compute_global_perplexity_sparsity()
+
+        average_sparsity = float(np.mean(sparsities))
+        self.log("global_sparsity", average_sparsity,
+                 on_step=True, on_epoch=True, logger=True, sync_dist=True)
+        loss_dict['global_sparsity'] = average_sparsity
         return loss_dict
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         # Example: Warmup for 1 epoch, then cosine anneal
-        warmup_epochs = 3
+        warmup_epochs = self.warm_up_epochs
         total_epochs = self.trainer.max_epochs
 
         # Scheduler 1: Linear Warmup
@@ -545,30 +653,33 @@ class RVQVAE(L.LightningModule):
         }
 
 
-    def on_validation_epoch_end(self):
-        """
-        Called at the end of the validation epoch. Logs codebook usage once per epoch.
-        """
-        # Log codebook usage statistics at the end of each validation epoch
-        self.log_codebook_usage()
+    # def on_validation_epoch_end(self):
+    #     """
+    #     Called at the end of the validation epoch. Logs codebook usage once per epoch.
+    #     """
+    #     # Log codebook usage statistics at the end of each validation epoch
+    #     self.log_codebook_usage()
 
     @classmethod
-    def from_checkpoint(cls, checkpoint_path, codebook_dim=64, codebook_size=512, learning_rate=1e-3):
+    def from_checkpoint(cls, checkpoint_path, codebook_dim=64, codebook_sizes=[512], encoder_hidden_size=512, decoder_hidden_size=512):
         """
-        Load the VQ-VAE model from a checkpoint and initialize with the required arguments.
+        Load the RVQVAE model from a checkpoint and initialize with the required arguments.
 
         Args:
-            checkpoint_path: Path to the checkpoint file.
-            base_model: The model whose output will be used as input to the VAE.
-            latent_dim: Dimensionality of the latent space.
-            learning_rate: Learning rate for the optimizer.
+            checkpoint_path (str): Path to the checkpoint file.
+            codebook_dim (int): Dimensionality of the VQ codebook and encoder output/decoder input.
+            codebook_sizes (list[int]): Number of vectors in each VQ codebook.
+            encoder_hidden_size (int): Size of the hidden layer in the encoder.
+            decoder_hidden_size (int): Size of the hidden layer in the decoder.
 
         Returns:
-            An instance of StandardVAE.
+            An instance of RVQVAE.
         """
         model = cls.load_from_checkpoint(
             checkpoint_path,
             codebook_dim=codebook_dim,
-            codebook_size=codebook_size,
+            codebook_sizes=codebook_sizes,
+            encoder_hidden_size=encoder_hidden_size,
+            decoder_hidden_size=decoder_hidden_size
         )
         return model

@@ -176,8 +176,8 @@ class MINDRecSysDataset(Dataset):
 class MINDRecSysDataModule(L.LightningDataModule):
 
     def __init__(self, 
-                 train_path: Path, 
-                 dev_path: Path, 
+                 train_path: Optional[Path] = None, 
+                 dev_path: Optional[Path] = None, 
                  test_path: Optional[Path] = None, 
                  glove_path: Optional[Path] = None,
                  batch_size: int = 32, 

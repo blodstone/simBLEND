@@ -1,14 +1,36 @@
+from typing import Tuple
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, v_measure_score
 from transformers import AutoModel, AutoConfig
 from pytorch_metric_learning.losses import SupConLoss
 from pytorch_metric_learning.distances import DotProductSimilarity
 from data_modules.mind_aspect_data import AspectNewsBatch
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 import torch
+import torch.nn as nn
 import lightning as L
+from sklearn.cluster import KMeans
+
+class ProjectionHead(torch.nn.Module):
+
+    def __init__(self, input_dim: int, output_dim: int):
+        super().__init__()
+        hidden_dim = input_dim * 2
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
 
 class AspectRepr(L.LightningModule):
     
-    def __init__(self, plm_name: str = "answerdotai/ModernBERT-large", learning_rate: float = 1e-5, warm_up_epochs: int = 1):
+    def __init__(self, 
+                 plm_name: str = "answerdotai/ModernBERT-large", 
+                 learning_rate: float = 1e-5, 
+                 warm_up_epochs: int = 1,
+                 projection_size: int = 128):
         super().__init__()
         self.learning_rate = learning_rate
         self.warm_up_epochs = warm_up_epochs
@@ -16,21 +38,33 @@ class AspectRepr(L.LightningModule):
         self.text_encoder = AutoModel.from_pretrained(plm_name, config=config)
         distance_func = DotProductSimilarity(normalize_embeddings=False)
         self.supcofn_loss = SupConLoss(temperature=0.1, distance=distance_func)
+        self.projection_head = ProjectionHead(
+            input_dim=self.text_encoder.config.hidden_size,
+            output_dim=projection_size
+        )
 
-    def forward(self, batch: AspectNewsBatch) -> torch.Tensor:
+    def forward(self, batch: AspectNewsBatch) -> Tuple[torch.Tensor, torch.Tensor]:
         input_ids = batch["news"]["text"]["input_ids"]
         attention_mask = batch["news"]["text"]["attention_mask"]
         outputs = self.text_encoder(input_ids=input_ids, attention_mask=attention_mask)
-        embeddings = outputs.last_hidden_state  # Use the last hidden state as embeddings
-        return embeddings[:, 0, :]
+        embeddings = outputs.last_hidden_state[:, 0, :]  # Use the CLS token from the last hidden state as embeddings
+        projected_embeddings = self.projection_head(embeddings)
+        return embeddings, projected_embeddings
 
+
+    @classmethod
+    def load_from_checkpoint(cls, checkpoint_path='', *args, **kwargs):
+        if checkpoint_path=='':
+            # Load from pretrained model if checkpoint_path is empty
+            return cls(*args, **kwargs)
+        return super().load_from_checkpoint(checkpoint_path, *args, **kwargs)
 
     def training_step(self, batch: AspectNewsBatch, batch_idx: int):
-        embeddings = self.forward(batch)
+        _, projected_embeddings = self.forward(batch)
         labels = batch["labels"]
         # Normalize embeddings
-        embeddings = torch.nn.functional.normalize(embeddings, dim=1)
-        loss = self.supcofn_loss(embeddings, labels)
+        projected_embeddings = torch.nn.functional.normalize(projected_embeddings, dim=1)
+        loss = self.supcofn_loss(projected_embeddings, labels)
 
         self.log(
             "train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True
@@ -38,17 +72,72 @@ class AspectRepr(L.LightningModule):
         return loss
     
     def validation_step(self, batch: AspectNewsBatch, batch_idx: int):
-        embeddings = self.forward(batch)
+        _, projected_embeddings = self.forward(batch)
         labels = batch["labels"]
         # Normalize embeddings
-        embeddings = torch.nn.functional.normalize(embeddings, dim=1)
-        loss = self.supcofn_loss(embeddings, labels)
+        projected_embeddings = torch.nn.functional.normalize(projected_embeddings, dim=1)
+        loss = self.supcofn_loss(projected_embeddings, labels)
 
         self.log(
             "val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True
         )
         return loss
     
+    def test_step(self, batch: AspectNewsBatch, batch_idx: int):
+        embeddings, projected_embeddings = self.forward(batch)
+        labels = batch["labels"]
+        # Normalize embeddings
+        projected_embeddings = torch.nn.functional.normalize(projected_embeddings, dim=1)
+        loss = self.supcofn_loss(projected_embeddings, labels)
+
+        self.log(
+            "test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True
+        )
+        results = {
+            "embeddings": embeddings,
+            "labels": labels,
+            "loss": loss
+        }
+        return results
+    
+    def test_epoch_end(self, outputs):
+        """
+        This method is called at the end of the test epoch.
+        It can be used to aggregate results from all test steps.
+        """
+        # Here you can process the outputs if needed, e.g., save embeddings or calculate metrics
+        all_embeddings = torch.cat([x['embeddings'] for x in outputs], dim=0)
+        all_labels = torch.cat([x['labels'] for x in outputs], dim=0)
+        all_loss = torch.stack([x['loss'] for x in outputs]).mean()
+
+        # Apply k-means clustering on all_embeddings
+        n_clusters = len(torch.unique(all_labels))
+        emb_np = all_embeddings.detach().cpu().numpy()
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init="auto")
+        cluster_labels = kmeans.fit_predict(emb_np)
+
+        ari_score = adjusted_rand_score(all_labels.cpu().numpy(), cluster_labels)
+        nmi_score = normalized_mutual_info_score(all_labels.cpu().numpy(), cluster_labels)
+        v_measure = v_measure_score(all_labels.cpu().numpy(), cluster_labels)
+
+        # Optionally log clustering results
+
+        self.log("test_kmeans_inertia", float(kmeans.inertia_), on_step=False, on_epoch=True, prog_bar=False, logger=True, sync_dist=True)
+        self.log("test_loss", all_loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("test_ari_score", float(ari_score), on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("test_nmi_score", float(nmi_score), on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("test_v_measure", float(v_measure), on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+
+        # Optionally return the aggregated results
+        return {
+            "embeddings": all_embeddings,
+            "labels": all_labels,
+            "loss": all_loss,
+            "ari_score": ari_score,
+            "nmi_score": nmi_score,
+            "v_measure": v_measure
+        }
+
     def configure_optimizers(self): # type: ignore
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 

@@ -7,12 +7,17 @@ import numpy as np
 
 class VQVAEDataModule(L.LightningDataModule):
 
-    def __init__(self, train_file: Optional[None|Path] = None, dev_file: Optional[None|Path] = None, test_file: Optional[None|Path] = None, batch_size: int= 16):
+    def __init__(self, train_file: Optional[None|Path] = None, 
+                 dev_file: Optional[None|Path] = None, 
+                 test_file: Optional[None|Path] = None, 
+                 batch_size: int= 16, num_workers: int = 30):
         super().__init__()
         self.train_file = train_file
         self.dev_file = dev_file
         self.test_file = test_file
         self.batch_size = batch_size
+        self.num_workers = num_workers
+
 
     def setup(self, stage: str):
         if stage == 'fit' or stage is None:
@@ -46,7 +51,7 @@ class VQVAEDataModule(L.LightningDataModule):
             self.test_encoding = encoding_dict
 
 
-    def train_dataloader(self, shuffle=True, num_workers=30):
+    def train_dataloader(self, shuffle=True):
         if self.train_encoding is None:
             raise ValueError("Train news data is not loaded.")
         self.train_dataset = VQVAEDataset(self.train_encoding)
@@ -54,23 +59,23 @@ class VQVAEDataModule(L.LightningDataModule):
             self.train_dataset,
             batch_size=self.batch_size,
             shuffle=shuffle,
-            num_workers=num_workers,
+            num_workers=self.num_workers,
             collate_fn=DatasetCollate(),
         )
-    
-    def val_dataloader(self, num_workers=30):
+
+    def val_dataloader(self):
         if self.dev_encoding is None:
             raise ValueError("Dev news data is not loaded.")
         self.dev_dataset = VQVAEDataset(self.dev_encoding)
         return DataLoader(self.dev_dataset, batch_size=self.batch_size, shuffle=False,
-            num_workers=num_workers, collate_fn=DatasetCollate())
-    
-    def test_dataloader(self, num_workers=30):
+            num_workers=self.num_workers, collate_fn=DatasetCollate())
+
+    def test_dataloader(self):
         if self.test_encoding is None:
             raise ValueError("Test news data is not loaded.")
         self.test_dataset = VQVAEDataset(self.test_encoding)
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False,
-            num_workers=num_workers, collate_fn=DatasetCollate())
+            num_workers=self.num_workers, collate_fn=DatasetCollate())
 
 class VQVAEDataset(Dataset):
 

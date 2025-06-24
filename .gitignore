@@ -14,8 +14,14 @@ Untitled*
 .ipynb_checkpoints/
 lightning_logs/
 checkpoints/
+checkpoints_arc/
 tb_logs/
 unknown/
 library/
 outputs/
 secrets.sh
+configs/
+*.db
+*.png
+*.pkl
+*.html
