@@ -5,24 +5,25 @@ source ./secrets.sh
 TRAIN_DATA_PATH=$DATASET_DIR/mind/MINDlarge_sentiment_train
 DEV_DATA_PATH=$DATASET_DIR/mind/MINDlarge_sentiment_dev
 CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
-NUM_WORKERS=12
+NUM_WORKERS=4
 PROJECTION_SIZE=128
-
+PLM_NAME=nickprock/ModernBERT-large-sts
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=5e-5
+LEARNING_RATE=1e-4
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
 BATCH_SIZE=8
 GRAD_ACCUM=1
-MAX_EPOCHS=25
+MAX_EPOCHS=30
 DEVICES=1
 GPU_IDS=1 # Comma-separated list of GPU IDs
-TB_NAME="aspect_sentiment"
+TB_NAME="aspect_sentiment_sts"
 SEED=55
 
 
 uv run python ../train_aspect_repr.py \
+    --plm_name $PLM_NAME \
     --train_path "$TRAIN_DATA_PATH" \
     --dev_path "$DEV_DATA_PATH" \
     --projection_size $PROJECTION_SIZE \

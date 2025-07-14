@@ -13,20 +13,22 @@ SEED=42
 WARMUP_EPOCHS=1
 NUM_WORKERS=4
 # Optuna Parameters
-STUDY_NAME="vqvae_political"
+STUDY_NAME="vqvae_sentiment_sts"
 N_TRIALS=50
-STORAGE="sqlite:///optuna_vqvae_political.db"
+CODEBOOK_SIZES="5 128"
+STORAGE="sqlite:///optuna_vqvae_sentiment_sts.db"
 
 for GPU_IDS in 0 1 2 4; do
   echo "Starting trial $i with GPU IDs: $GPU_IDS"
   sleep 30; uv run python ../optuna_vqvae.py \
-    --train_path $BASE_DIR/outputs/mind/train_mind_political_aspect_vectors.txt \
-    --dev_path $BASE_DIR/outputs/mind/dev_mind_political_aspect_vectors.txt \
+    --train_path $BASE_DIR/outputs/mind/train_mind_sentiment_aspect_vectors.txt \
+    --dev_path $BASE_DIR/outputs/mind/dev_mind_sentiment_aspect_vectors.txt \
     --input_size 1024 \
     --max_epochs_trial $MAX_EPOCHS \
     --num_workers $NUM_WORKERS \
     --seed $SEED \
     --devices $DEVICES \
+    --codebook_sizes $CODEBOOK_SIZES \
     --gpu_ids "$GPU_IDS" \
     --n_trials $N_TRIALS \
     --study_name $STUDY_NAME \

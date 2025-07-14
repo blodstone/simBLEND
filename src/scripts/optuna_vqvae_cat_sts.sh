@@ -13,10 +13,10 @@ SEED=42
 WARMUP_EPOCHS=1
 NUM_WORKERS=4
 # Optuna Parameters
-STUDY_NAME="vqvae_cat"
+STUDY_NAME="vqvae_cat_sts"
 N_TRIALS=50
-MIN_CODEBOOK_SIZE=18
-STORAGE="sqlite:///optuna_vqvae_cat.db"
+CODEBOOK_SIZES="18 128"
+STORAGE="sqlite:///optuna_vqvae_cat_sts.db"
 
 for GPU_IDS in 0 1 2 4; do
   echo "Starting trial $i with GPU IDs: $GPU_IDS"
@@ -29,7 +29,7 @@ for GPU_IDS in 0 1 2 4; do
     --seed $SEED \
     --devices $DEVICES \
     --gpu_ids "$GPU_IDS" \
-    --min_codebook_size $MIN_CODEBOOK_SIZE \
+    --codebook_sizes $CODEBOOK_SIZES \
     --n_trials $N_TRIALS \
     --study_name $STUDY_NAME \
     --storage $STORAGE &

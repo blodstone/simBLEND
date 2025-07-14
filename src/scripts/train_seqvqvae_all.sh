@@ -13,7 +13,7 @@ CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
 # NUM_ATTENTION_HEADS=12
 # MAX_POSITION_EMBEDDINGS=4090
 # OVERLAP_SIZE=50
-CODEBOOK_SIZE=1120
+CODEBOOK_SIZE=775
 HIDDEN_SIZE=768
 INTERMEDIATE_SIZE=2048
 NUM_HIDDEN_LAYERS=10
@@ -22,16 +22,16 @@ MAX_POSITION_EMBEDDINGS=4090
 OVERLAP_SIZE=50
 
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=1e-5
+LEARNING_RATE=5e-5
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
-BATCH_SIZE=8
+BATCH_SIZE=12
 GRAD_ACCUM=2
-MAX_EPOCHS=10
-DEVICES=1
-GPU_IDS=0 # Comma-separated list of GPU IDs
-TB_NAME="seqvqvae_all3"
+MAX_EPOCHS=30
+DEVICES=2
+GPU_IDS=4,6 # Comma-separated list of GPU IDs
+TB_NAME="seqvqvae_all_sts"
 SEED=42
 
 

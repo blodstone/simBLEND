@@ -37,7 +37,9 @@ def process_dataloader(logger, device, model, dataloader, output_file):
     save_dataset = {}
     for article in tqdm.tqdm(dataloader):
         batch = AspectNewsBatch(article)
-        batch["news"]["text"] = {key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()}
+        batch["news"]["text"] = {
+            key: value.to(device) if isinstance(value, torch.Tensor) else value for key, value in batch["news"]["text"].items()
+        }
         batch['labels'] = batch['labels'].to(device)  # Move labels to the same device
         nid = batch['news']['news_ids']
         with torch.no_grad():
@@ -77,6 +79,7 @@ if __name__ == '__main__':
         model = AspectRepr.load_from_checkpoint(plm_name=args.plm_name).to(device)  # Load the default pretrained model
     else:
         model = AspectRepr.load_from_checkpoint(args.model_path) 
+    model.eval()
     MIND_dev_path = Path(args.dev_path)
     MIND_train_path = Path(args.train_path)
     MIND_test_path = Path(args.test_path)
@@ -84,7 +87,7 @@ if __name__ == '__main__':
         train_path=MIND_train_path, 
         dev_path=MIND_dev_path, 
         test_path=MIND_test_path, 
-        batch_size=1, # have to processing one by one
+        batch_size=1, # have to process one by one
         selected_aspect=args.selected_aspect,  
     )
     mind.setup("fit") 

@@ -5,7 +5,7 @@ source ./secrets.sh
 TEST_DATA_PATH=$DATASET_DIR/mind/MINDlarge_dev
 OUTPUT_DIR=$BASE_DIR/outputs/eval
 uv run python ../eval_aspect.py \
-  --checkpoint_path $BASE_DIR/src/checkpoints/aspect_subcat_sts-epoch=23-val_loss=0.2110.ckpt\
+  --checkpoint_path $BASE_DIR/checkpoints/aspect_subcat_sts-epoch=40-val_loss=0.1905.ckpt \
   --test_path $TEST_DATA_PATH \
   --output_dir $OUTPUT_DIR \
   --selected_aspect subcategory_class \

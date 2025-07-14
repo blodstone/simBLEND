@@ -63,7 +63,8 @@ def generate_tsne(embeddings, labels, no_labels, file_path="tsne.png"):
     # point_colors = [custom_colors[label] for label in labels]
     cmap = mcolors.ListedColormap(custom_colors[:no_labels])  # Create a colormap with the custom colors
     # Apply t-SNE to reduce embeddings to 2D
-    tsne = TSNE(n_components=2, random_state=42, perplexity=30, n_iter=1000)
+
+    tsne = TSNE(n_components=2, random_state=42, perplexity=35, n_iter=1000)
     embeddings_2d = tsne.fit_transform(embeddings)
     # Plot the t-SNE visualization
     plt.figure(figsize=(10, 8))

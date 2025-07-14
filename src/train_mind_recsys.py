@@ -44,11 +44,12 @@ if __name__ == '__main__':
     parser.add_argument("--resume_from_checkpoint", type=Path, default=None, help="Path to a checkpoint to resume training from (optional).")
 
     args = parser.parse_args()
-
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
     # Set the random seed for reproducibility
     torch.manual_seed(args.seed)
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
+    
     data_module = MINDRecSysDataModule(
         train_path=args.train_path,
         dev_path=args.dev_path,

@@ -11,7 +11,7 @@ DEVICES=1
 # GPU_IDS=0 # Comma-separated list of GPU IDs
 SEED=42
 WARMUP_EPOCHS=1
-CODEBOOK_SIZES="256 2048"
+CODEBOOK_SIZES="256 512"
 NUM_WORKERS=4
 # Optuna Parameters
 STUDY_NAME="vqvae_std_sts"

@@ -90,7 +90,14 @@ def load_history_data(
             lambda user_id: user_id2index.get(user_id, 0)
         ).astype(int)
     elif split == 'dev' or split == 'test':
-        user_id2index = pd.read_table(path.parent / "user_id2index.tsv", sep="\t").set_index("user_id")["index"].to_dict()
+        # If user_id2index.tsv does not exist, rebuild it from current behaviors
+        user_id2index_path = path.parent / "user_id2index.tsv"
+        if not user_id2index_path.exists():
+            user_id = df_behaviors["user_id"].drop_duplicates().reset_index(drop=True)
+            user_id2index = {v: k + 1 for k, v in user_id.to_dict().items()}
+            pd.DataFrame(user_id2index.items(), columns=["user_id", "index"]).to_csv(user_id2index_path, index=False, sep="\t")
+        else:
+            user_id2index = pd.read_table(user_id2index_path, sep="\t").set_index("user_id")["index"].to_dict()
         df_behaviors["user_id_class"] = df_behaviors["user_id"].apply(
             lambda user_id: user_id2index.get(user_id, 0)
         ).astype(int)

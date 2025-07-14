@@ -424,6 +424,24 @@ class RVQVAE(L.LightningModule):
         recon_x = self.decoder(quantized) # Shape: (B, I)
         return recon_x, vq_loss, indices_list
 
+    def decode_from_index(self, index):
+        """
+        Decodes the quantized indices back to the original input space.
+
+        Args:
+            index (torch.Tensor): Codebook index from RVQ. Shape: (B, 1)
+
+        Returns:
+            recon_x (torch.Tensor): Reconstructed output from the decoder. Shape: (B, I)
+        """
+        # Convert index to quantized vectors using the codebook
+        quantized = [self.rvq_layer.quantizers[i].codebook(index) for i in range(len(self.rvq_layer.quantizers))]
+        # Stack the quantized vectors along a new dimension
+        quantized = torch.stack(quantized, dim=0)
+        # Pass the stacked quantized vectors through the decoder
+        recon_x = self.decoder(quantized)
+        return recon_x
+
     def compute_loss(self, base_output, recon_x, vq_loss):
         """
         Computes the combined loss.

@@ -2,10 +2,10 @@
 
 source ./secrets.sh
 uv run python ../eval_rvqvae.py \
-  --test_path $BASE_DIR/outputs/mind/dev_mind_std_aspect_vectors.txt \
-  --checkpoint_path $BASE_DIR/checkpoints/rvqvae_std-epoch=05-val_loss=0.0313.ckpt \
-  --codebook_dim 256 \
-  --codebook_sizes 768 \
+  --test_path $BASE_DIR/outputs/mind/dev_mind_std_sts_aspect_vectors.txt \
+  --checkpoint_path $BASE_DIR/checkpoints_arc/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt \
+  --codebook_dim 512 \
+  --codebook_sizes 414 \
   --hidden_size 128 \
   --input_size 1024 \
   --num_quantizers 1 \

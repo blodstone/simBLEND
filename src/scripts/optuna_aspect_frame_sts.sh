@@ -15,8 +15,8 @@ WARMUP_EPOCHS=1
 NUM_WORKERS=4
 # Optuna Parameters
 N_TRIALS=50
-STUDY_NAME="aspect_frame_study"
-STORAGE="sqlite:///optuna_aspect_frame.db"
+STUDY_NAME="aspect_frame_study_sts"
+STORAGE="sqlite:///optuna_aspect_frame_sts.db"
 
 uv run python ../optuna_aspect.py \
     --train_path "$TRAIN_DATA_PATH" \

@@ -19,7 +19,10 @@ class LlamaDecoderForNextArticle(L.LightningModule):
                  intermediate_size: int = 4096,
                  num_hidden_layers: int = 8,  
                  num_attention_heads: int = 8, 
-                 max_position_embeddings: int = 4096):
+                 max_position_embeddings: int = 4096,
+                 beam_size: int = 5,
+                 n_tokens: int = 5,
+                 token_offset: int = 0):
         """
         Args:
             num_vqvae_iter (int): The number of code iterations (length of the code sequence per item).
@@ -42,7 +45,8 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         self.warmup_epochs = warmup_epochs
         self.embedding = nn.Embedding(codebook_size, hidden_size)
         llama_input_dim = hidden_size # Account for concatenated behavior
-
+        self.beam_size = beam_size
+        self.max_len = max_position_embeddings
         self.config = LlamaConfig(
             vocab_size=codebook_size,
             hidden_size=llama_input_dim,
@@ -60,6 +64,8 @@ class LlamaDecoderForNextArticle(L.LightningModule):
             nn.Dropout(0.1), 
             nn.Linear(llama_input_dim, codebook_size, bias=False)
         )
+        self.n_tokens = n_tokens
+        self.token_offset = token_offset
         # self.save_hyperparameters('pretrained_models')
 
     def forward(self, indices, attention_mask) -> torch.Tensor:
@@ -113,7 +119,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
     def training_step(self, batch, batch_idx):
         loss, _, _, _ = self.common_step(batch, batch_idx)
         # Log training loss
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         
         return loss
     
@@ -134,18 +140,21 @@ class LlamaDecoderForNextArticle(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         loss, _, _, _ = self.common_step(batch, batch_idx)
         # Log validation loss
-        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         # Log perplexity (optional, but common)
         perplexity = torch.exp(loss)
-        self.log('val_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         return loss
     
     def test_step(self, batch, batch_idx):
         loss, shift_logits, shift_labels, attention_mask = self.common_step(batch, batch_idx)
-        self.log('test_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('test_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         perplexity = torch.exp(loss)
-        self.log('test_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-
+        self.log('test_perplexity', perplexity, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        indices = torch.arange(0, shift_logits.size(1), step=self.n_tokens+self.token_offset, device=shift_logits.device)
+        shift_logits = shift_logits[:, indices, :]  # Select every n_tokens-th token
+        shift_labels = shift_labels[:, indices]  # Select corresponding labels
+        attention_mask = attention_mask[:, indices]  # Select corresponding attention mask
         flat_logits = shift_logits.view(-1, self.config.vocab_size)
         flat_labels = shift_labels.view(-1)
         flat_attention_mask = attention_mask.view(-1).bool()
@@ -154,14 +163,14 @@ class LlamaDecoderForNextArticle(L.LightningModule):
 
         if valid_labels.numel() > 0:
             for k in [1, 5, 10, 25]:
+                
                 _, top_k_preds = torch.topk(valid_logits, k=k, dim=-1)
-
                 correct_k = (top_k_preds == valid_labels.unsqueeze(1)).any(dim=-1)
                 accuracy_k = correct_k.float().mean()
-                self.log(f'test_accuracy_top_{k}', accuracy_k, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+                self.log(f'test_accuracy_top_{k}', accuracy_k, on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         else:
             for k in [1, 5, 10, 25]:
-                self.log(f'test_accuracy_top_{k}', torch.tensor(0, device=self.device), on_step=False, on_epoch=True, prog_bar=True, logger=True )
+                self.log(f'test_accuracy_top_{k}', torch.tensor(0, device=self.device), on_step=False, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         return loss
 
     def predict_step(self, batch, batch_idx):
@@ -172,7 +181,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
         self.eval()
         with torch.no_grad():
             input_ids, attention_mask = batch
-            batch_size, seq_len = input_ids.shape
+            batch_size, _ = input_ids.shape
             device = input_ids.device
             vocab_size = self.config.vocab_size  
 
@@ -181,6 +190,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
             # (B, L) -> (B * beam_size, L)
             input_ids = input_ids.repeat_interleave(self.beam_size, dim=0)
             attention_mask = attention_mask.repeat_interleave(self.beam_size, dim=0)
+            # 2. Initialize scores and beam indices
             scores = torch.zeros(batch_size, self.beam_size, self.n_tokens+1, device=device)  # (B, beam_size)
             bbsz_offsets = (
                 (torch.arange(0, batch_size) * self.beam_size)
@@ -188,7 +198,7 @@ class LlamaDecoderForNextArticle(L.LightningModule):
                 .type_as(input_ids)
                 .to(device)
             )
-            for step in range(5):
+            for step in range(self.n_tokens):
                 outputs = self(input_ids, attention_mask) 
                 last_hidden_state = outputs.last_hidden_state # (B * beam_size, L, vocab_size)
                 logits = self.lm_head(last_hidden_state)
@@ -235,7 +245,22 @@ class LlamaDecoderForNextArticle(L.LightningModule):
 
             # To match your original return shape of (k, batch_size, n_tokens)
             # where k is beam_size, we permute the dimensions.
-            return generated_sequences[:, -self.n_tokens:], scores[:, :, -1]  # (B * beam_size, n_tokens)
+            last_pos = last_pos + 1  # Adjust last_pos to account for the new token added
+            # Retrieve the last n_tokens from the last_pos of generated_sequences
+            start_indices = last_pos.unsqueeze(1) - self.n_tokens + 1
+            start_indices = start_indices.clamp(min=0)
+            end_indices = last_pos.unsqueeze(1) + 1
+            generated_sequences = [
+                generated_sequences[i, start:end]
+                for i, (start, end) in enumerate(zip(start_indices.flatten(), end_indices.flatten()))
+            ]
+            generated_sequences = torch.stack([
+                F.pad(seq, (self.n_tokens - seq.size(0), 0), value=0) if seq.size(0) < self.n_tokens else seq
+                for seq in generated_sequences
+            ], dim=0)
+            return generated_sequences.view(batch_size, self.beam_size, -1), scores[:, :, 1:]
+            # return generated_sequences_test, scores[:, :, 1:]  # (B * beam_size, n_tokens)
+            # return generated_sequences[:, -self.n_tokens:], scores[:, :, -1]  # (B * beam_size, n_tokens)
 
 
     def configure_optimizers(self): # type: ignore
@@ -273,7 +298,41 @@ class LlamaDecoderForNextArticle(L.LightningModule):
             },
         }
         
-        
-        
-        
-        
+if __name__ == '__main__':
+    # Example usage
+    import pandas as pd
+    from data_modules.indices_data import SeqVQVAEDataModule
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    codebook_size = 775
+    logging.info(f"Load model")
+    seqvqvae = LlamaDecoderForNextArticle.load_from_checkpoint(
+            '/home/users1/hardy/hardy/project/vae/src/checkpoints/seqvqvae_all_sts-epoch=07-val_loss=2.1679.ckpt',
+            codebook_size=codebook_size+1,
+            hidden_size=768,
+            intermediate_size=2048,
+            num_hidden_layers=10,
+            num_attention_heads=12,
+            max_position_embeddings=4090)
+    seqvqvae.eval()
+
+    codebook_sizes = [414, 69, 106, 69, 117]
+    seqvqvae.set_predict_params(codebook_sizes=codebook_sizes, beam_size=5, n_tokens=5)
+    result_df = pd.read_csv('/home/users1/hardy/hardy/project/vae/src/combined_history_indices.csv')
+    seqvqvae_data_module = SeqVQVAEDataModule(
+        test_df = result_df,
+        batch_size=2,
+        max_len=10000,
+        overlap=0,
+        begin_token = sum(codebook_sizes)
+    )
+    seqvqvae = seqvqvae.to(device)
+    seqvqvae_data_module.setup('test')
+    dataloader = seqvqvae_data_module.test_dataloader()
+    batch = next(iter(dataloader))
+    logging.info(f"Batch shape: {batch[0].shape}, {batch[1].shape}")
+    batch = [item.to(device) for item in batch]
+    logging.info(f"Start prediction")
+    outputs = seqvqvae.predict_step(batch, 0)
+    print(outputs)

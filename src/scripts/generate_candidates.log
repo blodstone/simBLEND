@@ -1,0 +1,480 @@
+2025-07-02 16:41:01,869 - INFO - Starting candidate generation
+2025-07-02 16:41:01,869 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 16:41:01,936 - INFO - Using device: cuda
+2025-07-02 16:41:01,948 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 16:41:01,948 - INFO - Loading VQVAE models
+2025-07-02 16:41:01,985 - INFO - Loading VQVAE model 1/1 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 16:44:22,172 - INFO - Starting candidate generation
+2025-07-02 16:47:29,888 - INFO - Starting candidate generation
+2025-07-02 16:47:29,888 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 16:47:29,955 - INFO - Using device: cuda
+2025-07-02 16:47:29,999 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 16:47:30,015 - INFO - Loading VQVAE models
+2025-07-02 16:47:30,065 - INFO - Loading VQVAE model 1/1 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 16:59:33,440 - INFO - Starting candidate generation
+2025-07-02 16:59:33,440 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 16:59:33,507 - INFO - Using device: cuda
+2025-07-02 16:59:33,530 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 16:59:33,530 - INFO - Loading VQVAE models
+2025-07-02 16:59:33,530 - INFO - Loading VQVAE model 1/1 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt,/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:01:49,093 - INFO - Starting candidate generation
+2025-07-02 17:01:49,093 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:01:49,162 - INFO - Using device: cuda
+2025-07-02 17:01:49,200 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:01:49,258 - INFO - Loading VQVAE models
+2025-07-02 17:01:49,258 - INFO - Loading VQVAE model 1/1 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:02:53,776 - INFO - Starting candidate generation
+2025-07-02 17:02:53,776 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:02:53,848 - INFO - Using device: cuda
+2025-07-02 17:02:53,849 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:02:53,873 - INFO - Loading VQVAE models
+2025-07-02 17:02:53,898 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 17:03:02,289 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 17:03:02,290 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 17:03:03,354 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 17:03:03,355 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 17:03:04,782 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 17:03:04,782 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 17:03:05,030 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 17:03:05,030 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:03:06,806 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 17:03:06,806 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 17:03:21,368 - INFO - Aspect vectors loaded successfully
+2025-07-02 17:03:21,369 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt
+2025-07-02 17:03:23,987 - INFO - Loaded 414142 sequence results
+2025-07-02 17:03:23,987 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 17:03:23,987 - INFO - Created indices map with 775 entries
+2025-07-02 17:03:24,071 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new.db
+2025-07-02 17:03:24,897 - INFO - Milvus client connected successfully
+2025-07-02 17:03:24,897 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 17:08:25,316 - INFO - Starting candidate generation
+2025-07-02 17:08:25,316 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:08:25,385 - INFO - Using device: cuda
+2025-07-02 17:08:25,464 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:08:25,510 - INFO - Loading VQVAE models
+2025-07-02 17:08:25,531 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 17:08:33,920 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 17:08:33,921 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 17:08:35,254 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 17:08:35,254 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 17:08:37,334 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 17:08:37,334 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 17:08:37,673 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 17:08:37,673 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:08:40,078 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 17:08:40,078 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 17:08:54,621 - INFO - Aspect vectors loaded successfully
+2025-07-02 17:08:54,621 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 17:08:59,639 - INFO - Loaded 414142 sequence results
+2025-07-02 17:08:59,639 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 17:08:59,640 - INFO - Created indices map with 775 entries
+2025-07-02 17:08:59,736 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 17:09:00,550 - INFO - Milvus client connected successfully
+2025-07-02 17:09:00,550 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 17:15:52,170 - INFO - Starting candidate generation
+2025-07-02 17:15:52,171 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:15:52,350 - INFO - Using device: cuda
+2025-07-02 17:15:52,351 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:15:52,351 - INFO - Loading VQVAE models
+2025-07-02 17:15:52,351 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 17:16:01,471 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 17:16:01,472 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 17:16:02,698 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 17:16:02,699 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 17:16:04,535 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 17:16:04,535 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 17:16:04,787 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 17:16:04,787 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:16:06,747 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 17:16:06,748 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 17:16:20,922 - INFO - Aspect vectors loaded successfully
+2025-07-02 17:16:20,923 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 17:16:25,401 - INFO - Loaded 414142 sequence results
+2025-07-02 17:16:25,401 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 17:16:25,401 - INFO - Created indices map with 775 entries
+2025-07-02 17:16:25,461 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 17:16:26,258 - INFO - Milvus client connected successfully
+2025-07-02 17:16:26,258 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 17:19:13,230 - INFO - Starting candidate generation
+2025-07-02 17:19:13,230 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:19:13,296 - INFO - Using device: cuda
+2025-07-02 17:19:13,319 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:19:13,361 - INFO - Loading VQVAE models
+2025-07-02 17:19:13,403 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 17:19:22,352 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 17:19:22,352 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 17:19:23,436 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 17:19:23,436 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 17:19:25,248 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 17:19:25,248 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 17:19:25,526 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 17:19:25,526 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:19:27,574 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 17:19:27,574 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 17:19:41,871 - INFO - Aspect vectors loaded successfully
+2025-07-02 17:19:41,871 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 17:19:46,336 - INFO - Loaded 414142 sequence results
+2025-07-02 17:19:46,337 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 17:19:46,337 - INFO - Created indices map with 775 entries
+2025-07-02 17:19:46,425 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 17:19:46,466 - INFO - Milvus client connected successfully
+2025-07-02 17:19:46,488 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 17:20:56,021 - INFO - Starting candidate generation
+2025-07-02 17:20:56,021 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 17:20:56,086 - INFO - Using device: cuda
+2025-07-02 17:20:56,104 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 17:20:56,104 - INFO - Loading VQVAE models
+2025-07-02 17:20:56,104 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 17:21:04,226 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 17:21:04,227 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 17:21:05,298 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 17:21:05,298 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 17:21:06,770 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 17:21:06,770 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 17:21:07,070 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 17:21:07,070 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 17:21:08,712 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 17:21:08,713 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 17:21:22,417 - INFO - Aspect vectors loaded successfully
+2025-07-02 17:21:22,417 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 17:21:26,688 - INFO - Loaded 414142 sequence results
+2025-07-02 17:21:26,688 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 17:21:26,688 - INFO - Created indices map with 775 entries
+2025-07-02 17:21:26,744 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 17:21:27,638 - INFO - Milvus client connected successfully
+2025-07-02 17:21:27,639 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 19:03:40,235 - INFO - Starting candidate generation
+2025-07-02 19:03:40,236 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 19:03:40,313 - INFO - Using device: cuda
+2025-07-02 19:03:40,347 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 19:03:40,389 - INFO - Loading VQVAE models
+2025-07-02 19:03:40,430 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 19:03:48,199 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 19:03:48,199 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 19:03:49,031 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 19:03:49,032 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 19:03:50,431 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 19:03:50,431 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 19:03:50,701 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 19:03:50,701 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 19:03:52,496 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 19:03:52,496 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 19:04:07,624 - INFO - Aspect vectors loaded successfully
+2025-07-02 19:04:07,624 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 19:04:12,182 - INFO - Loaded 414142 sequence results
+2025-07-02 19:04:12,182 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 19:04:12,182 - INFO - Created indices map with 775 entries
+2025-07-02 19:04:12,259 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 19:04:12,289 - INFO - Created temporary directory: /tmp/milvus_workers_fy895g4e
+2025-07-02 19:37:14,467 - INFO - Starting candidate generation
+2025-07-02 19:37:14,468 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 19:37:14,539 - INFO - Using device: cuda
+2025-07-02 19:37:14,540 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 19:37:14,540 - INFO - Loading VQVAE models
+2025-07-02 19:37:14,590 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 19:37:22,822 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 19:37:22,822 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 19:37:23,871 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 19:37:23,871 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 19:37:25,540 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 19:37:25,540 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 19:37:25,866 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 19:37:25,866 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 19:37:28,712 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 19:37:28,712 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 19:37:41,336 - INFO - Aspect vectors loaded successfully
+2025-07-02 19:37:41,336 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 19:37:45,223 - INFO - Loaded 414142 sequence results
+2025-07-02 19:37:45,223 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 19:37:45,224 - INFO - Created indices map with 775 entries
+2025-07-02 19:37:45,287 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 19:37:45,288 - INFO - Created temporary directory: /tmp/milvus_workers_g_8h4dj2
+2025-07-02 19:37:45,667 - INFO - Copied database to worker path 1/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_0
+2025-07-02 19:37:45,800 - INFO - Copied database to worker path 2/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_1
+2025-07-02 19:37:45,941 - INFO - Copied database to worker path 3/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_2
+2025-07-02 19:37:46,082 - INFO - Copied database to worker path 4/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_3
+2025-07-02 19:37:46,216 - INFO - Copied database to worker path 5/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_4
+2025-07-02 19:37:46,349 - INFO - Copied database to worker path 6/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_5
+2025-07-02 19:37:46,484 - INFO - Copied database to worker path 7/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_6
+2025-07-02 19:37:46,615 - INFO - Copied database to worker path 8/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_7
+2025-07-02 19:37:46,753 - INFO - Copied database to worker path 9/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_8
+2025-07-02 19:37:46,885 - INFO - Copied database to worker path 10/10: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_9
+2025-07-02 19:37:46,887 - ERROR - Error connecting to Milvus in worker: <ConnectionConfigException: (code=1, message=uri: /tmp/milvus_workers_g_8h4dj2/milvus_db_worker_0 is illegal, needs start with [unix, http, https, tcp] or a local file endswith [.db])>
+2025-07-02 19:40:49,909 - INFO - Starting candidate generation
+2025-07-02 19:40:49,909 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 19:40:49,975 - INFO - Using device: cuda
+2025-07-02 19:40:50,069 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 19:40:50,110 - INFO - Loading VQVAE models
+2025-07-02 19:40:50,110 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 19:40:57,955 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 19:40:57,955 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 19:40:58,964 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 19:40:58,964 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 19:41:00,489 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 19:41:00,489 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 19:41:00,769 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 19:41:00,769 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 19:41:02,420 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 19:41:02,420 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 19:41:15,140 - INFO - Aspect vectors loaded successfully
+2025-07-02 19:41:15,140 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 19:41:19,053 - INFO - Loaded 414142 sequence results
+2025-07-02 19:41:19,053 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 19:41:19,053 - INFO - Created indices map with 775 entries
+2025-07-02 19:41:19,151 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 19:41:19,194 - INFO - Created temporary directory: /tmp/milvus_workers_7aikg0yz
+2025-07-02 19:41:19,377 - INFO - Copied database to worker path 1/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_0_aspect_data_new2.db
+2025-07-02 19:41:19,508 - INFO - Copied database to worker path 2/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_1_aspect_data_new2.db
+2025-07-02 19:41:19,638 - INFO - Copied database to worker path 3/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_2_aspect_data_new2.db
+2025-07-02 19:41:19,770 - INFO - Copied database to worker path 4/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_3_aspect_data_new2.db
+2025-07-02 19:41:19,905 - INFO - Copied database to worker path 5/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_4_aspect_data_new2.db
+2025-07-02 19:41:20,036 - INFO - Copied database to worker path 6/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_5_aspect_data_new2.db
+2025-07-02 19:41:20,168 - INFO - Copied database to worker path 7/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_6_aspect_data_new2.db
+2025-07-02 19:41:20,299 - INFO - Copied database to worker path 8/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_7_aspect_data_new2.db
+2025-07-02 19:41:20,428 - INFO - Copied database to worker path 9/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_8_aspect_data_new2.db
+2025-07-02 19:41:20,556 - INFO - Copied database to worker path 10/10: /tmp/milvus_workers_7aikg0yz/milvus_db_worker_9_aspect_data_new2.db
+2025-07-02 19:41:20,782 - ERROR - Error connecting to Milvus in worker: Db name milvus_db_worker_0_aspect_data_new2.db is too long, should be less than 36
+2025-07-02 19:43:18,074 - INFO - Starting candidate generation
+2025-07-02 19:43:18,074 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 19:43:18,141 - INFO - Using device: cuda
+2025-07-02 19:43:18,155 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 19:43:18,155 - INFO - Loading VQVAE models
+2025-07-02 19:43:18,155 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 19:43:26,374 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 19:43:26,374 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 19:43:27,518 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 19:43:27,518 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 19:43:29,337 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 19:43:29,337 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 19:43:29,668 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 19:43:29,668 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 19:43:31,412 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 19:43:31,412 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 19:43:44,055 - INFO - Aspect vectors loaded successfully
+2025-07-02 19:43:44,055 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 19:43:47,950 - INFO - Loaded 414142 sequence results
+2025-07-02 19:43:47,950 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 19:43:47,950 - INFO - Created indices map with 775 entries
+2025-07-02 19:43:47,950 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 19:43:47,950 - INFO - Created temporary directory: /tmp/milvus_workers_lwa4lypi
+2025-07-02 19:43:48,110 - INFO - Copied database to worker path 1/10: /tmp/milvus_workers_lwa4lypi/temp_0_aspect_data_new2.db
+2025-07-02 19:43:48,239 - INFO - Copied database to worker path 2/10: /tmp/milvus_workers_lwa4lypi/temp_1_aspect_data_new2.db
+2025-07-02 19:43:48,366 - INFO - Copied database to worker path 3/10: /tmp/milvus_workers_lwa4lypi/temp_2_aspect_data_new2.db
+2025-07-02 19:43:48,495 - INFO - Copied database to worker path 4/10: /tmp/milvus_workers_lwa4lypi/temp_3_aspect_data_new2.db
+2025-07-02 19:43:48,625 - INFO - Copied database to worker path 5/10: /tmp/milvus_workers_lwa4lypi/temp_4_aspect_data_new2.db
+2025-07-02 19:43:48,755 - INFO - Copied database to worker path 6/10: /tmp/milvus_workers_lwa4lypi/temp_5_aspect_data_new2.db
+2025-07-02 19:43:48,883 - INFO - Copied database to worker path 7/10: /tmp/milvus_workers_lwa4lypi/temp_6_aspect_data_new2.db
+2025-07-02 19:43:49,010 - INFO - Copied database to worker path 8/10: /tmp/milvus_workers_lwa4lypi/temp_7_aspect_data_new2.db
+2025-07-02 19:43:49,137 - INFO - Copied database to worker path 9/10: /tmp/milvus_workers_lwa4lypi/temp_8_aspect_data_new2.db
+2025-07-02 19:43:49,267 - INFO - Copied database to worker path 10/10: /tmp/milvus_workers_lwa4lypi/temp_9_aspect_data_new2.db
+2025-07-02 19:43:49,999 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_0_aspect_data_new2.db
+2025-07-02 19:43:50,579 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_1_aspect_data_new2.db
+2025-07-02 19:43:51,160 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_2_aspect_data_new2.db
+2025-07-02 19:43:51,746 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_3_aspect_data_new2.db
+2025-07-02 19:43:52,286 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_4_aspect_data_new2.db
+2025-07-02 19:43:52,863 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_5_aspect_data_new2.db
+2025-07-02 19:43:53,413 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_6_aspect_data_new2.db
+2025-07-02 19:43:54,021 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_7_aspect_data_new2.db
+2025-07-02 19:43:54,562 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_8_aspect_data_new2.db
+2025-07-02 19:43:55,170 - INFO - Milvus client connected successfully for worker at /tmp/milvus_workers_lwa4lypi/temp_9_aspect_data_new2.db
+2025-07-02 19:43:55,170 - INFO - Milvus client connected successfully
+2025-07-02 19:43:55,170 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:05:17,702 - INFO - Starting candidate generation
+2025-07-02 20:05:17,702 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 20:05:17,775 - INFO - Using device: cuda
+2025-07-02 20:05:17,775 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 20:05:17,807 - INFO - Loading VQVAE models
+2025-07-02 20:05:17,807 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 20:05:26,844 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 20:05:26,844 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 20:05:28,098 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 20:05:28,098 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 20:05:29,850 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 20:05:29,850 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 20:05:30,159 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 20:05:30,159 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 20:05:32,078 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 20:05:32,078 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 20:05:45,966 - INFO - Aspect vectors loaded successfully
+2025-07-02 20:05:45,967 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 20:05:50,218 - INFO - Loaded 414142 sequence results
+2025-07-02 20:05:50,218 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 20:05:50,218 - INFO - Created indices map with 775 entries
+2025-07-02 20:05:50,304 - INFO - Preparing Milvus database for parallel processing: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 20:05:50,321 - INFO - Created temporary directory: /tmp/milvus_workers_i6fizsuv
+2025-07-02 20:05:50,491 - INFO - Copied database to worker path 1/10: /tmp/milvus_workers_i6fizsuv/temp_0_aspect_data_new2.db
+2025-07-02 20:05:50,636 - INFO - Copied database to worker path 2/10: /tmp/milvus_workers_i6fizsuv/temp_1_aspect_data_new2.db
+2025-07-02 20:05:50,784 - INFO - Copied database to worker path 3/10: /tmp/milvus_workers_i6fizsuv/temp_2_aspect_data_new2.db
+2025-07-02 20:05:50,928 - INFO - Copied database to worker path 4/10: /tmp/milvus_workers_i6fizsuv/temp_3_aspect_data_new2.db
+2025-07-02 20:05:51,067 - INFO - Copied database to worker path 5/10: /tmp/milvus_workers_i6fizsuv/temp_4_aspect_data_new2.db
+2025-07-02 20:05:51,205 - INFO - Copied database to worker path 6/10: /tmp/milvus_workers_i6fizsuv/temp_5_aspect_data_new2.db
+2025-07-02 20:05:51,344 - INFO - Copied database to worker path 7/10: /tmp/milvus_workers_i6fizsuv/temp_6_aspect_data_new2.db
+2025-07-02 20:05:51,486 - INFO - Copied database to worker path 8/10: /tmp/milvus_workers_i6fizsuv/temp_7_aspect_data_new2.db
+2025-07-02 20:05:51,625 - INFO - Copied database to worker path 9/10: /tmp/milvus_workers_i6fizsuv/temp_8_aspect_data_new2.db
+2025-07-02 20:05:51,779 - INFO - Copied database to worker path 10/10: /tmp/milvus_workers_i6fizsuv/temp_9_aspect_data_new2.db
+2025-07-02 20:05:51,779 - INFO - Database files prepared for parallel workers
+2025-07-02 20:05:51,779 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:11:44,556 - INFO - Starting candidate generation
+2025-07-02 20:11:44,556 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 20:11:44,622 - INFO - Using device: cuda
+2025-07-02 20:11:44,675 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 20:11:44,725 - INFO - Loading VQVAE models
+2025-07-02 20:11:44,775 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 20:11:51,357 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 20:11:51,358 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 20:11:52,316 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 20:11:52,316 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 20:11:53,493 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 20:11:53,493 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 20:11:53,748 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 20:11:53,748 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 20:11:55,344 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 20:11:55,344 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 20:12:09,304 - INFO - Aspect vectors loaded successfully
+2025-07-02 20:12:09,304 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 20:12:13,573 - INFO - Loaded 414142 sequence results
+2025-07-02 20:12:13,573 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 20:12:13,573 - INFO - Created indices map with 775 entries
+2025-07-02 20:12:13,644 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 20:12:14,686 - INFO - Milvus database connection test successful
+2025-07-02 20:12:14,686 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:12:14,770 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-02 20:16:59,585 - INFO - Starting candidate generation
+2025-07-02 20:16:59,586 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 20:16:59,653 - INFO - Using device: cuda
+2025-07-02 20:16:59,674 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 20:16:59,674 - INFO - Loading VQVAE models
+2025-07-02 20:16:59,674 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 20:17:09,051 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 20:17:09,051 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 20:17:10,286 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 20:17:10,286 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 20:17:11,992 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 20:17:11,993 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 20:17:12,369 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 20:17:12,369 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 20:17:14,423 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 20:17:14,424 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 20:17:29,534 - INFO - Aspect vectors loaded successfully
+2025-07-02 20:17:29,535 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 20:17:34,271 - INFO - Loaded 414142 sequence results
+2025-07-02 20:17:34,271 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 20:17:34,271 - INFO - Created indices map with 775 entries
+2025-07-02 20:17:34,304 - INFO - Connecting to Milvus database at: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/aspect_data_new2.db
+2025-07-02 20:17:35,347 - INFO - Milvus database connection test successful
+2025-07-02 20:17:35,347 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:17:35,347 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-02 20:19:30,068 - INFO - Starting candidate generation
+2025-07-02 20:19:30,068 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 20:19:30,140 - INFO - Using device: cuda
+2025-07-02 20:19:30,175 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 20:19:30,200 - INFO - Loading VQVAE models
+2025-07-02 20:19:30,275 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 20:19:38,931 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 20:19:38,932 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 20:19:40,080 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 20:19:40,080 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 20:19:41,918 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 20:19:41,918 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 20:19:42,174 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 20:19:42,175 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 20:19:44,143 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 20:19:44,143 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 20:19:59,566 - INFO - Aspect vectors loaded successfully
+2025-07-02 20:19:59,567 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10.txt
+2025-07-02 20:20:04,346 - INFO - Loaded 414142 sequence results
+2025-07-02 20:20:04,347 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 20:20:04,347 - INFO - Created indices map with 775 entries
+2025-07-02 20:20:04,380 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:20:04,432 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-02 20:27:02,463 - INFO - Starting candidate generation
+2025-07-02 20:27:02,463 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-02 20:27:02,531 - INFO - Using device: cuda
+2025-07-02 20:27:02,594 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-02 20:27:02,610 - INFO - Loading VQVAE models
+2025-07-02 20:27:02,627 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-02 20:27:12,332 - INFO - VQVAE model 1 loaded successfully
+2025-07-02 20:27:12,332 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-02 20:27:13,443 - INFO - VQVAE model 2 loaded successfully
+2025-07-02 20:27:13,443 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-02 20:27:15,187 - INFO - VQVAE model 3 loaded successfully
+2025-07-02 20:27:15,188 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-02 20:27:15,458 - INFO - VQVAE model 4 loaded successfully
+2025-07-02 20:27:15,458 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-02 20:27:17,074 - INFO - VQVAE model 5 loaded successfully
+2025-07-02 20:27:17,075 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-02 20:27:33,266 - INFO - Aspect vectors loaded successfully
+2025-07-02 20:27:33,266 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5.txt
+2025-07-02 20:27:36,356 - INFO - Loaded 414142 sequence results
+2025-07-02 20:27:36,357 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-02 20:27:36,357 - INFO - Created indices map with 775 entries
+2025-07-02 20:27:36,424 - INFO - Starting candidate generation for 414142 predictions
+2025-07-02 20:27:36,449 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-03 01:30:50,725 - INFO - Saving results to: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle
+2025-07-03 01:31:03,687 - INFO - Results saved successfully to /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_5_cands.pickle
+2025-07-03 01:31:03,687 - INFO - Candidate generation completed
+2025-07-03 02:49:53,356 - INFO - Saving results to: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle
+2025-07-03 02:50:05,487 - INFO - Results saved successfully to /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_10_cands.pickle
+2025-07-03 02:50:05,488 - INFO - Candidate generation completed
+2025-07-03 11:29:31,207 - INFO - Starting candidate generation
+2025-07-03 11:29:31,207 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-03 11:29:31,300 - INFO - Using device: cuda
+2025-07-03 11:29:31,327 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-03 11:29:31,351 - INFO - Loading VQVAE models
+2025-07-03 11:29:31,352 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-03 11:29:39,754 - INFO - VQVAE model 1 loaded successfully
+2025-07-03 11:29:39,754 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-03 11:29:40,888 - INFO - VQVAE model 2 loaded successfully
+2025-07-03 11:29:40,888 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-03 11:29:42,843 - INFO - VQVAE model 3 loaded successfully
+2025-07-03 11:29:42,843 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-03 11:29:43,251 - INFO - VQVAE model 4 loaded successfully
+2025-07-03 11:29:43,251 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-03 11:29:45,060 - INFO - VQVAE model 5 loaded successfully
+2025-07-03 11:29:45,060 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-03 11:29:57,967 - INFO - Aspect vectors loaded successfully
+2025-07-03 11:29:57,967 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25.txt
+2025-07-03 11:30:06,627 - INFO - Loaded 414142 sequence results
+2025-07-03 11:30:06,627 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-03 11:30:06,627 - INFO - Created indices map with 775 entries
+2025-07-03 11:30:06,719 - INFO - Starting candidate generation for 414142 predictions
+2025-07-03 11:30:06,745 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-03 11:46:34,396 - INFO - Starting candidate generation
+2025-07-03 11:46:34,396 - INFO - Arguments: prediction_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25.txt, vqvae_paths=['/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt', '/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt'], codebook_sizes=[414, 69, 106, 69, 117], output_path=/mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25_cands.pickle, collection_name=dev_mind_2019_11_14
+2025-07-03 11:46:35,856 - INFO - Using device: cuda
+2025-07-03 11:46:35,856 - INFO - Set CUDA_VISIBLE_DEVICES to: 0
+2025-07-03 11:46:35,856 - INFO - Loading VQVAE models
+2025-07-03 11:46:35,974 - INFO - Loading VQVAE model 1/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_std_sts-epoch=12-val_loss=0.72483.ckpt
+2025-07-03 11:46:50,501 - INFO - VQVAE model 1 loaded successfully
+2025-07-03 11:46:50,501 - INFO - Loading VQVAE model 2/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_cat_sts-epoch=12-val_loss=0.44667.ckpt
+2025-07-03 11:46:52,361 - INFO - VQVAE model 2 loaded successfully
+2025-07-03 11:46:52,361 - INFO - Loading VQVAE model 3/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_frame_sts-epoch=18-val_loss=0.17045.ckpt
+2025-07-03 11:46:55,215 - INFO - VQVAE model 3 loaded successfully
+2025-07-03 11:46:55,216 - INFO - Loading VQVAE model 4/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_political_sts-epoch=07-val_loss=0.27821.ckpt
+2025-07-03 11:46:55,598 - INFO - VQVAE model 4 loaded successfully
+2025-07-03 11:46:55,599 - INFO - Loading VQVAE model 5/5 from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/checkpoints/rvqvae_sentiment_sts-epoch=10-val_loss=0.40279.ckpt
+2025-07-03 11:46:59,084 - INFO - VQVAE model 5 loaded successfully
+2025-07-03 11:46:59,084 - INFO - Loading aspect vectors from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/dev_mind_std_sts_aspect_vectors.txt
+2025-07-03 11:47:11,927 - INFO - Aspect vectors loaded successfully
+2025-07-03 11:47:11,927 - INFO - Loading sequence results from: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25.txt
+2025-07-03 11:47:20,532 - INFO - Loaded 414142 sequence results
+2025-07-03 11:47:20,532 - INFO - Creating indices map for codebook sizes: [414, 69, 106, 69, 117]
+2025-07-03 11:47:20,532 - INFO - Created indices map with 775 entries
+2025-07-03 11:47:20,657 - INFO - Starting candidate generation for 414142 predictions
+2025-07-03 11:47:20,700 - INFO - Using ThreadPoolExecutor for parallel processing
+2025-07-04 10:24:32,706 - ERROR - Prediction 254520 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 16:56:49,843 - ERROR - Prediction 324956 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 17:32:28,348 - ERROR - Prediction 330395 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 18:15:49,414 - ERROR - Prediction 337455 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 18:26:36,060 - ERROR - Prediction 339319 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 18:36:58,591 - ERROR - Prediction 341145 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 18:47:46,036 - ERROR - Prediction 343049 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 19:45:16,670 - ERROR - Prediction 352884 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 19:45:16,853 - ERROR - Prediction 352886 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 20:30:34,946 - ERROR - Prediction 360854 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 20:30:34,948 - ERROR - Prediction 360851 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-04 23:14:34,090 - ERROR - Prediction 391575 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-05 00:11:52,721 - ERROR - Prediction 402347 generated an exception: <MilvusException: (code=2, message=Fail connecting to server on unix:/tmp/tmp95wvml0e_aspect_data_new.db.sock, illegal connection params or server unavailable)>
+2025-07-05 01:12:49,713 - INFO - Saving results to: /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25_cands.pickle
+2025-07-05 01:14:05,066 - INFO - Results saved successfully to /mount/arbeitsdaten66/projekte/multiview/hardy/project/vae/outputs/mind/seq_prediction_beam_25_cands.pickle
+2025-07-05 01:14:05,066 - INFO - Candidate generation completed

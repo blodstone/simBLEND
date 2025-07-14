@@ -5,18 +5,18 @@ source ./secrets.sh
 TRAIN_DATA_PATH=$DATASET_DIR/mind/MINDlarge_train
 DEV_DATA_PATH=$DATASET_DIR/mind/MINDlarge_dev
 CHECKPOINT_DIR=$BASE_DIR/src/checkpoints
-NUM_WORKERS=12
+NUM_WORKERS=4
 PROJECTION_SIZE=128
 PLM_NAME=nickprock/ModernBERT-large-sts
 
 # Optimizer/Scheduler Parameters (Defaults from script, modify as needed)
-LEARNING_RATE=5e-5
+LEARNING_RATE=1e-4
 WARMUP_EPOCHS=1
 
 # Training Parameters (Defaults from script, modify as needed)
 BATCH_SIZE=8
 GRAD_ACCUM=1
-MAX_EPOCHS=25
+MAX_EPOCHS=50
 DEVICES=1
 GPU_IDS=3 # Comma-separated list of GPU IDs
 TB_NAME="aspect_subcat_sts"

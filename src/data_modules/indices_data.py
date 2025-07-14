@@ -9,13 +9,16 @@ from torch.utils.data import DataLoader, Dataset
 
 class SeqVQVAEDataModule(L.LightningDataModule):
     
-    def __init__(self, train_file: Optional[None|Path] = None, 
+    def __init__(self, 
+                 begin_token: int,
+                 train_file: Optional[None|Path] = None, 
                  dev_file: Optional[None|Path] = None, 
                  test_file: Optional[None|Path] = None,
                  test_df: Optional[None|pd.DataFrame] = None, 
                  batch_size: int = 32,
                  max_len: int = 4096,
-                 overlap: int = 50):
+                 overlap: int = 50,
+                 ):
         super().__init__()
         self.train_file = train_file
         self.dev_file = dev_file
@@ -24,6 +27,7 @@ class SeqVQVAEDataModule(L.LightningDataModule):
         self.batch_size = batch_size
         self.max_len = max_len
         self.overlap = overlap
+        self.begin_token = begin_token
 
     def setup(self, stage: str) -> None:
         if stage == 'fit' or stage is None:
@@ -53,20 +57,20 @@ class SeqVQVAEDataModule(L.LightningDataModule):
             if type(datum) != str:
                 continue
             datum = datum.split()
-            if len(datum) < 2:
+            if len(datum) < 1:
                 continue
             indices = datum
-            if len(indices) > self.max_len:
+            if len(indices) > self.max_len-1:  # -1 for the begin token
                 start = 0
                 while start < len(indices):
-                    end = min(start + self.max_len, len(indices))
-                    indices_list.append([int(x) for x in indices[start:end]])
+                    end = min(start + self.max_len-1, len(indices))
+                    indices_list.append([self.begin_token] + [int(x) for x in indices[start:end]])
                     if end == len(indices):
                         break
                     start += self.max_len - self.overlap
                 continue
             else:
-                indices_list.append([int(x) for x in indices])
+                indices_list.append([self.begin_token] + [int(x) for x in indices])
             # indices_list.append([int(x) for x in indices])
         if split == "train":
             self.train_indices = indices_list

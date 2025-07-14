@@ -29,9 +29,9 @@ WARMUP_EPOCHS=1
 BATCH_SIZE=8
 GRAD_ACCUM=2
 MAX_EPOCHS=10
-DEVICES=1
-GPU_IDS=2 # Comma-separated list of GPU IDs
-TB_NAME="seqvqvae_std_sts"
+DEVICES=2
+GPU_IDS=4,6 # Comma-separated list of GPU IDs
+TB_NAME="seqvqvae_std_sts_b"
 SEED=42
 
 

@@ -40,27 +40,28 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Set the random seed for reproducibility
-    torch.manual_seed(args.seed)
-
+    
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
-
+    torch.manual_seed(args.seed)
     seqvqvae = LlamaDecoderForNextArticle(
         learning_rate=args.learning_rate,
-        codebook_size=args.codebook_size,
+        codebook_size=args.codebook_size+1, # +1 for the begin token
         hidden_size=args.hidden_size,
         intermediate_size=args.intermediate_size,
         num_hidden_layers=args.num_hidden_layers,
         num_attention_heads=args.num_attention_heads,
         max_position_embeddings=args.max_position_embeddings,
     )
-
+    begin_token = args.codebook_size
     seqvqvae_data_module = SeqVQVAEDataModule(
         train_file=Path(args.train_path),
         dev_file=Path(args.dev_path),
         test_file=None,
         batch_size=args.batch_size,
         max_len=args.max_position_embeddings,
-        overlap=args.overlap_size
+        overlap=args.overlap_size,
+        begin_token=begin_token,
     )
     seqvqvae_data_module.setup('fit')
 
@@ -87,6 +88,7 @@ if __name__ == '__main__':
         enable_checkpointing=True,  # Enable model checkpointing
         accumulate_grad_batches=args.grad_accum,
         gradient_clip_val= 1.0,  # Gradient clipping value
+        strategy='ddp_find_unused_parameters_true',  # Use DDP strategy with unused parameters
         callbacks=[checkpoint_callback, early_stopping],  # Add the checkpoint callback
     )
 

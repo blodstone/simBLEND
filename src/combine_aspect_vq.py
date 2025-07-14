@@ -46,26 +46,27 @@ if __name__ ==  '__main__':
 
     all_train_indices = []
     all_dev_indices = []
+    all_test_indices = []
     logging.info("Creating indices map for codebook sizes: %s", args.codebook_sizes)
     indices_map_dict = indices_map(args.codebook_sizes)
-    # all_test_indices = {}
+    
     logging.info("Loading datasets.")
     for output_name in args.output_names:
         df_train_histories = pd.read_csv(Path(args.output_folder) / f'train_{output_name}_histories_indices.csv')
         df_train_histories = df_train_histories.fillna('')
         df_dev_histories = pd.read_csv(Path(args.output_folder) / f'dev_{output_name}_histories_indices.csv')
         df_dev_histories = df_dev_histories.fillna('')
-        # df_test_histories = pd.read_csv(Path(args.output_folder) / f'test_{output_name}_histories_indices.csv')
+        df_test_histories = pd.read_csv(Path(args.output_folder) / f'test_{output_name}_histories_indices.csv')
+        df_test_histories = df_test_histories.fillna('')
         # Convert histories to indices
         all_train_indices.append(df_train_histories)
         all_dev_indices.append(df_dev_histories)
-        # all_test_indices[output_name] = df_test_histories
-    logging.info("Concatenating history indices for train and dev datasets.")
+        all_test_indices.append(df_test_histories)
+    logging.info("Concatenating history indices for alld datasets.")
     train_combined_df = concat_history_indices(all_train_indices, indices_map_dict)
     dev_combined_df = concat_history_indices(all_dev_indices, indices_map_dict)
+    test_combined_df = concat_history_indices(all_test_indices, indices_map_dict)
     # Combine 'history_indices' columns by concatenation for each user/impression
     train_combined_df.to_csv(Path(args.output_folder) / f'combined_train_histories_indices.csv', index=False)
     dev_combined_df.to_csv(Path(args.output_folder) / f'combined_dev_histories_indices.csv', index=False)
-    # test_combined_df = concat_history_indices(all_test_indices)
-    # test_combined_df['history_indices'] = test_combined_df['history_indices'].apply(lambda x: ' '.join(x.split()))
-    # test_combined_df.to_csv(Path(args.output_folder) / f'combined_test_histories_indices.csv', index=False)
+    test_combined_df.to_csv(Path(args.output_folder) / f'combined_test_histories_indices.csv', index=False)
